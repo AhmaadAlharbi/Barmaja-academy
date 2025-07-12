@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BlogPostController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CourseController;
@@ -17,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Main dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('courses', CourseController::class);
+    Route::resource('blogs', BlogPostController::class);
 
     // Analytics API endpoint (for future chart integration)
     Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
