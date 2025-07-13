@@ -1,15 +1,15 @@
 <?php
 
-use App\Http\Controllers\BlogPostController;
-use App\Http\Controllers\CourseContentController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\BlogPostController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CourseContentController;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/courses/list', [HomeController::class, 'showCourses'])->name('frontend.courses.list');
 
 // Dashboard routes
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -20,7 +20,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('courses', CourseController::class)->parameters([
         'courses' => 'course:id'
     ]);
-
     // Course Content Routes with numeric constraint
     Route::prefix('courses/{course}')->where(['course' => '[0-9]+'])->group(function () {
         Route::get('/content/create', [CourseContentController::class, 'create'])->name('courses.content.create');
@@ -40,12 +39,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Analytics API endpoint (for future chart integration)
     Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
 });
-
 // Admin-only dashboard routes (if you want admin-specific features)
-Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])->name('admin.dashboard.analytics');
-});
+// Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
+//     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+//     Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])->name('admin.dashboard.analytics');
+// });
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
