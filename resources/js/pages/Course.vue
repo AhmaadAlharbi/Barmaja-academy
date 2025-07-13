@@ -318,6 +318,8 @@ const enrollInCourse = () => {
                                 <div class="space-y-4">
                                     <div v-for="(content, index) in course.contents" :key="content.id"
                                         class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                        <Link :href="route('frontend.showContent', { contetnt_id: content.id })">
+
                                         <div class="p-4 bg-gray-50 dark:bg-gray-700">
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center">
@@ -343,6 +345,7 @@ const enrollInCourse = () => {
                                                 {{ content.content_en.substring(0, 150) }}...
                                             </p>
                                         </div>
+                                        </Link>
                                     </div>
                                 </div>
                             </div>

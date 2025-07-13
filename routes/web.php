@@ -15,6 +15,7 @@ Route::get('courses-list/{id}/course', [HomeController::class, 'showCourse'])->n
 Route::get('/blogs/list', [HomeController::class, 'showBlogs'])->name('frontend.blogs.list');
 Route::get('blogs-list/{id}/blog', [HomeController::class, 'showBlog'])->name('frontend.show.blog');
 Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('frontend.contact-us');
+Route::get('/course-content/{contetnt_id}', [HomeController::class, 'showContent'])->name('frontend.showContent');
 // Dashboard routes
 Route::middleware(['auth', 'verified'])->group(function () {
     // Main dashboard
