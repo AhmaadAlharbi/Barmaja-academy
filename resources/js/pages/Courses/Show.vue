@@ -412,10 +412,19 @@ const sortedContents = computed(() => {
                                             <XCircle v-else class="h-4 w-4" />
                                         </button>
 
+                                        <!-- View -->
+                                        <Link
+                                            :href="route('courses.content.show', { course: course.id, content: content.id })"
+                                            class="p-2 text-green-600 hover:text-green-800 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 border border-transparent hover:border-green-200 dark:hover:border-green-800 transition-all duration-200"
+                                            title="View content details">
+                                        <Eye class="h-4 w-4" />
+                                        </Link>
+
                                         <!-- Edit -->
                                         <Link
                                             :href="route('courses.content.edit', { course: course.id, content: content.id })"
-                                            class="p-2 text-blue-600 hover:text-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-transparent hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200">
+                                            class="p-2 text-blue-600 hover:text-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-transparent hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200"
+                                            title="Edit content">
                                         <Edit class="h-4 w-4" />
                                         </Link>
 
