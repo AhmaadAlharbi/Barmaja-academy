@@ -31,4 +31,38 @@ class HomeController extends Controller
             ]
         );
     }
+    public function showCourse($id)
+    {
+        $course = Course::with(['contents', 'comments'])->findOrFail($id);
+        return Inertia::render(
+            'Course',
+            [
+                'course' => $course
+            ]
+        );
+    }
+    public function showBlogs()
+    {
+        $blogs = BlogPost::paginate(6);
+        return Inertia::render(
+            'Blogs',
+            [
+                'blogs' => $blogs
+            ]
+        );
+    }
+    public function showBlog($id)
+    {
+        $blog = BlogPost::findOrFail($id);
+        return Inertia::render(
+            'Blog',
+            [
+                'blog' => $blog
+            ]
+        );
+    }
+    public function contactUs()
+    {
+        return Inertia::render('Contact-us');
+    }
 }

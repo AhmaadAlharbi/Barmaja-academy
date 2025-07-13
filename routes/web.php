@@ -10,7 +10,11 @@ use App\Http\Controllers\CourseContentController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/courses/list', [HomeController::class, 'showCourses'])->name('frontend.courses.list');
+Route::get('courses-list/{id}/course', [HomeController::class, 'showCourse'])->name('frontend.show.course');
 
+Route::get('/blogs/list', [HomeController::class, 'showBlogs'])->name('frontend.blogs.list');
+Route::get('blogs-list/{id}/blog', [HomeController::class, 'showBlog'])->name('frontend.show.blog');
+Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('frontend.contact-us');
 // Dashboard routes
 Route::middleware(['auth', 'verified'])->group(function () {
     // Main dashboard

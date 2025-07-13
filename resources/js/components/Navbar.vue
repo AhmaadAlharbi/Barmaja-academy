@@ -45,17 +45,12 @@ function toggleMobileMenu() {
                         'hover:text-blue-700 dark:hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium transition-colors'
                     ]">Courses</Link>
 
-                    <Link href="/blog" :class="[
+                    <Link href="/blogs/list" :class="[
                         currentUrl.startsWith('/blog') ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-gray-300',
                         'hover:text-blue-700 dark:hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium transition-colors'
                     ]">Blog</Link>
 
-                    <Link href="/about" :class="[
-                        currentUrl.startsWith('/about') ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-gray-300',
-                        'hover:text-blue-700 dark:hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium transition-colors'
-                    ]">About</Link>
-
-                    <Link href="/contact" :class="[
+                    <Link href="/contact-us" :class="[
                         currentUrl.startsWith('/contact') ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-gray-300',
                         'hover:text-blue-700 dark:hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium transition-colors'
                     ]">Contact</Link>

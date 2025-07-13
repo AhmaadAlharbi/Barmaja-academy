@@ -306,10 +306,10 @@ defineProps<{
                                     <!-- Hover Overlay -->
                                     <div
                                         class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                                        <button
+                                        <Link :href="route('frontend.show.course', { id: course.id })"
                                             class="bg-white text-gray-900 px-4 py-2 rounded-lg font-semibold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                            View Course
-                                        </button>
+                                        View Course
+                                        </Link>
                                     </div>
                                 </div>
 
