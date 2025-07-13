@@ -80,7 +80,7 @@ class CourseController extends Controller
     public function show(Course $course)
     {
         $course->load(['contents' => function ($query) {
-            $query->where('is_active', true)->orderBy('sort_order');
+            $query->orderBy('sort_order');
         }]);
 
         return Inertia::render('Courses/Show', [
