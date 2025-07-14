@@ -68,18 +68,17 @@ class HomeController extends Controller
     }
     public function showContent($content_id)
     {
-        $content = CourseContent::findOrFail($content_id);
+        // $content = CourseContent::with(['comments'])->findOrFail($content_id);
+        $content = CourseContent::with(['comments.user'])->findOrFail($content_id);
 
         // Get the course information
         $course = Course::findOrFail($content->course_id);
-
         // Get all lessons for this course (for navigation)
         $allLessons = CourseContent::where('course_id', $content->course_id)
             ->where('is_active', 1)
             ->orderBy('sort_order')
             ->select('id', 'title_en', 'title_ar', 'sort_order', 'is_active', 'video_url')
             ->get();
-
         // Optional: Get user progress if you have user authentication
         $progress = null;
         if (auth()->check()) {

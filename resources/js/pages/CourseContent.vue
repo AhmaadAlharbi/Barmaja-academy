@@ -1,7 +1,21 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import Navbar from '@/components/Navbar.vue';
 import { ref, computed } from 'vue';
+
+// Comment interface
+interface Comment {
+    id: number;
+    user_id: number;
+    course_content_id: number;
+    comment: string;
+    created_at: string;
+    updated_at: string;
+    user?: {
+        name: string;
+        avatar?: string;
+    };
+}
 
 // Props from Laravel backend
 const props = defineProps<{
@@ -20,6 +34,7 @@ const props = defineProps<{
         is_active: number;
         created_at: string;
         updated_at: string;
+        comments?: Comment[];
     };
     course?: {
         id: number;
@@ -48,6 +63,13 @@ const showNotes = ref(false);
 const userNotes = ref('');
 const isBookmarked = ref(false);
 const videoProgress = ref(0);
+const showComments = ref(true);
+
+// Comment form
+const commentForm = useForm({
+    comment: '',
+    course_content_id: props.content.id,
+});
 
 // Computed properties
 const currentLessonIndex = computed(() => {
@@ -66,6 +88,17 @@ const nextLesson = computed(() => {
 
 const progressPercentage = computed(() => {
     return props.progress?.percentage || 0;
+});
+
+const commentsCount = computed(() => {
+    return props.content.comments?.length || 0;
+});
+
+const sortedComments = computed(() => {
+    if (!props.content.comments) return [];
+    return [...props.content.comments].sort((a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
 });
 
 // Methods
@@ -106,6 +139,61 @@ const getVideoEmbedUrl = (url: string) => {
         return `https://player.vimeo.com/video/${videoId}`;
     }
     return url;
+};
+
+// Comment methods
+const submitComment = () => {
+    if (!props.auth?.user) {
+        alert('Please login to add comments');
+        return;
+    }
+
+    commentForm.post('/course-content/comment', {
+        onSuccess: () => {
+            commentForm.reset();
+            // Page will refresh with new comments
+        },
+        onError: (errors) => {
+            console.error('Error submitting comment:', errors);
+        }
+    });
+};
+
+// Delete comment method with confirmation
+const deleteComment = (commentId: number) => {
+    // Show confirmation dialog
+    const confirmed = confirm('Are you sure you want to delete this comment? This action cannot be undone.');
+
+    if (confirmed) {
+        router.delete(`/course-content/comment/${commentId}`, {
+            onSuccess: () => {
+                // Page will refresh and comment will be removed
+                console.log('Comment deleted successfully');
+            },
+            onError: (errors) => {
+                console.error('Error deleting comment:', errors);
+                alert('Failed to delete comment. Please try again.');
+            },
+            onFinish: () => {
+                // Optional: Handle any cleanup after the request finishes
+            }
+        });
+    }
+};
+
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
+
+const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
 };
 </script>
 
@@ -192,6 +280,10 @@ const getVideoEmbedUrl = (url: string) => {
                                         <i class="fas fa-eye mr-1"></i>
                                         <span>1,234 views</span>
                                     </div>
+                                    <div class="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                                        <i class="fas fa-comments mr-1"></i>
+                                        <span>{{ commentsCount }} comments</span>
+                                    </div>
                                 </div>
                                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                                     {{ content.title_en }}
@@ -244,6 +336,125 @@ const getVideoEmbedUrl = (url: string) => {
                                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
                                     Save Notes
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
+                        <!-- Comments Header -->
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
+                                Comments ({{ commentsCount }})
+                            </h3>
+                            <button @click="showComments = !showComments"
+                                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+                                <i :class="showComments ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+                            </button>
+                        </div>
+
+                        <div v-if="showComments">
+                            <!-- Add Comment Form -->
+                            <div v-if="auth?.user" class="mb-8 p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Add a Comment</h4>
+
+                                <form @submit.prevent="submitComment">
+                                    <div class="mb-4">
+                                        <textarea v-model="commentForm.comment" rows="4"
+                                            placeholder="Share your thoughts about this lesson..."
+                                            class="w-full px-4 py-3 border rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+                                            :class="{
+                                                'border-red-500 focus:ring-red-500': commentForm.errors.comment,
+                                                'border-gray-300 dark:border-gray-600': !commentForm.errors.comment
+                                            }"></textarea>
+
+                                        <!-- Error Message -->
+                                        <div v-if="commentForm.errors.comment"
+                                            class="mt-2 text-red-600 dark:text-red-400 text-sm">
+                                            {{ commentForm.errors.comment }}
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-end">
+                                        <button type="submit"
+                                            :disabled="commentForm.processing || !commentForm.comment.trim()"
+                                            class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-semibold transition-colors flex items-center">
+                                            <i v-if="commentForm.processing" class="fas fa-spinner fa-spin mr-2"></i>
+                                            <i v-else class="fas fa-comment mr-2"></i>
+                                            {{ commentForm.processing ? 'Posting...' : 'Post Comment' }}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Login prompt for guests -->
+                            <div v-else
+                                class="mb-8 p-6 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mr-3"></i>
+                                    <div>
+                                        <p class="text-blue-800 dark:text-blue-200">
+                                            Please
+                                            <Link href="/login" class="font-semibold underline hover:no-underline">login
+                                            </Link>
+                                            to add comments and join the discussion.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Comments List -->
+                            <div v-if="commentsCount > 0" class="space-y-6">
+                                <div v-for="comment in sortedComments" :key="comment.id"
+                                    class="flex space-x-4 p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                    <!-- User Avatar -->
+                                    <div class="flex-shrink-0">
+                                        <div v-if="comment.user?.avatar" class="w-10 h-10 rounded-full overflow-hidden">
+                                            <img :src="comment.user.avatar" :alt="comment.user?.name || 'User'"
+                                                class="w-full h-full object-cover">
+                                        </div>
+                                        <div v-else
+                                            class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-sm">
+                                            {{ getInitials(comment.user?.name || 'Anonymous User') }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Comment Content -->
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <h5 class="font-semibold text-gray-900 dark:text-white">
+                                                {{ comment.user?.name || 'Anonymous User' }}
+                                            </h5>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                {{ formatDate(comment.created_at) }}
+                                            </span>
+                                        </div>
+                                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                            {{ comment.comment }}
+                                        </p>
+
+                                        <!-- Comment Actions -->
+                                        <div class="flex items-center space-x-4 mt-3">
+
+                                            <button
+                                                v-if="auth?.user?.id === comment.user_id || auth?.user?.role === 'admin'"
+                                                @click="deleteComment(comment.id)"
+                                                class="text-gray-500 hover:text-red-600 dark:hover:text-red-400 text-sm transition-colors">
+                                                <i class="fas fa-trash mr-1"></i>
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- No Comments State -->
+                            <div v-else class="text-center py-12">
+                                <i class="fas fa-comments text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                                <h4 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No comments yet
+                                </h4>
+                                <p class="text-gray-500 dark:text-gray-500">Be the first to share your thoughts about
+                                    this lesson!</p>
                             </div>
                         </div>
                     </div>

@@ -25,4 +25,8 @@ class CourseContent extends Model
     {
         return $this->belongsTo(Course::class);
     }
+    public function comments()
+    {
+        return $this->hasMany(CourseContentComment::class, 'course_content_id');
+    }
 }

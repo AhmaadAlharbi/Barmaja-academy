@@ -9,6 +9,7 @@ use App\Models\BlogPost;
 use App\Models\CourseComment;
 use App\Models\CourseContent;
 use Illuminate\Database\Seeder;
+use App\Models\CourseContentComment;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -56,5 +57,6 @@ class DatabaseSeeder extends Seeder
 
         CourseComment::factory(20)->create();
         BlogPost::factory(20)->create();
+        CourseContentComment::factory()->count(100)->create();
     }
 }

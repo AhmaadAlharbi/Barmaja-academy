@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\BlogPostController;
+use App\Http\Controllers\CourseContentCommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CourseContentController;
 
@@ -16,6 +17,9 @@ Route::get('/blogs/list', [HomeController::class, 'showBlogs'])->name('frontend.
 Route::get('blogs-list/{id}/blog', [HomeController::class, 'showBlog'])->name('frontend.show.blog');
 Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('frontend.contact-us');
 Route::get('/course-content/{contetnt_id}', [HomeController::class, 'showContent'])->name('frontend.showContent');
+Route::post('/course-content/comment', [CourseContentCommentController::class, 'store'])->name('comments.store');
+Route::delete('/course-content/comment/{id}', [CourseContentCommentController::class, 'destroy'])->name('comments.destroy');
+
 // Dashboard routes
 Route::middleware(['auth', 'verified'])->group(function () {
     // Main dashboard
