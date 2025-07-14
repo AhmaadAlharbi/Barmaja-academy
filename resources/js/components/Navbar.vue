@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, usePage, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const page = usePage();
 const currentUrl = page.url;
@@ -15,6 +16,21 @@ function toggleMobileMenu() {
     if (menu) {
         menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
     }
+}
+const isLoggingOut = ref(false);
+
+function logout() {
+    isLoggingOut.value = true;
+
+    // Slight delay before firing logout to make UX feel smoother
+    setTimeout(() => {
+        router.post('/logout', {}, {
+            onFinish: () => {
+                isLoggingOut.value = false;
+            },
+            progress: false,
+        });
+    }, 300); // delay 300ms
 }
 </script>
 
@@ -75,10 +91,23 @@ function toggleMobileMenu() {
                     <!-- Auth Buttons -->
                     <div class="flex items-center space-x-2">
                         <template v-if="$page.props.auth?.user">
-                            <Link href="/dashboard"
+                            <Link v-if="$page.props.auth?.user.role == 'admin'" href="/dashboard"
                                 class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
                             Dashboard
                             </Link>
+                            <p class="bg-red-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                Hello, {{ $page.props.auth.user.name }}
+                            </p>
+                            <button @click="logout" :disabled="isLoggingOut"
+                                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                <span v-if="isLoggingOut">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i> Logging out...
+                                </span>
+                                <span v-else>
+                                    Log Out
+                                </span>
+                            </button>
+
                         </template>
                         <template v-else>
                             <Link href="/login"
@@ -127,6 +156,7 @@ function toggleMobileMenu() {
                                 class="bg-blue-600 hover:bg-blue-700 text-white block px-3 py-2 rounded-md text-base font-medium text-center">
                             Dashboard</Link>
                         </template>
+
                         <template v-else>
                             <Link href="/login"
                                 class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
