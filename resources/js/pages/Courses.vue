@@ -369,10 +369,11 @@ defineProps<{
                                     </div>
 
                                     <!-- Enroll Button -->
-                                    <button
-                                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                                        Enroll Now
-                                    </button>
+                                    <Link :href="route('enroll.page', { id: course.id })" class="w-full bg-gradient-to-br from-blue-500 to-purple-700 text-white py-3 px-6 rounded-lg font-bold text-lg tracking-wide shadow-md
+         transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 hover:shadow-xl
+         focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75">
+                                    Enroll Now
+                                    </Link>
                                 </div>
                             </div>
                         </div>

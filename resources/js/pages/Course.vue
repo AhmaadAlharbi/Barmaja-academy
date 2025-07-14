@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import Navbar from '@/components/Navbar.vue';
 import { ref } from 'vue';
 
 // Props from Laravel backend
-defineProps<{
+const props = defineProps<{
     auth?: {
         user?: any;
     };
@@ -41,6 +41,7 @@ defineProps<{
             created_at: string;
         }>;
     };
+    isEnrolled?: boolean;
 }>();
 
 // Reactive data
@@ -48,6 +49,11 @@ const activeTab = ref('overview');
 const newComment = ref('');
 const newRating = ref(5);
 const showVideo = ref(false);
+
+// Enrollment form
+const enrollForm = useForm({
+    course_id: props.course.id,
+});
 
 // Methods
 const formatDate = (date: string) => {
@@ -69,9 +75,36 @@ const submitComment = () => {
     newRating.value = 5;
 };
 
+// Updated enrollment function
 const enrollInCourse = () => {
-    // Handle course enrollment/purchase
-    console.log('Enrolling in course:', course.id);
+    if (!props.auth?.user) {
+        // Redirect to login page
+        window.location.href = '/login';
+        return;
+    }
+
+    enrollForm.post('/enroll-course', {
+        onSuccess: () => {
+            // Will be redirected by the controller
+            console.log('Enrollment successful');
+        },
+        onError: (errors) => {
+            console.error('Enrollment failed:', errors);
+            // Handle validation errors if any
+            if (errors.course_id) {
+                alert('Invalid course selected.');
+            } else {
+                alert('Failed to enroll in course. Please try again.');
+            }
+        }
+    });
+};
+
+const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    }).format(price);
 };
 </script>
 
@@ -188,17 +221,49 @@ const enrollInCourse = () => {
                                 <!-- Price -->
                                 <div class="text-center mb-6">
                                     <div class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                                        ${{ course.price }}
+                                        {{ formatPrice(course.price) }}
                                     </div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400 line-through">$99.99</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 line-through">
+                                        {{ formatPrice(course.price * 1.5) }}
+                                    </div>
                                 </div>
 
-                                <!-- Enroll Button -->
-                                <button @click="enrollInCourse"
-                                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl mb-4">
-                                    <i class="fas fa-shopping-cart mr-2"></i>
-                                    Enroll Now
-                                </button>
+                                <!-- Enroll Button or Go to Course -->
+                                <div v-if="isEnrolled && auth?.user">
+                                    <Link :href="route('course.content', { course_id: course.id })"
+                                        class="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl mb-4 flex items-center justify-center">
+                                    <i class="fas fa-play-circle mr-2"></i>
+                                    Go to Course
+                                    </Link>
+                                    <div class="text-center text-green-600 dark:text-green-400 font-medium mb-4">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        You are enrolled in this course!
+                                    </div>
+                                </div>
+
+                                <div v-else>
+                                    <!-- Enroll Button -->
+                                    <button @click="enrollInCourse" :disabled="enrollForm.processing"
+                                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl mb-4 flex items-center justify-center">
+                                        <i v-if="enrollForm.processing" class="fas fa-spinner fa-spin mr-2"></i>
+                                        <i v-else class="fas fa-shopping-cart mr-2"></i>
+                                        {{ enrollForm.processing ? 'Processing...' : 'Enroll Now' }}
+                                    </button>
+
+                                    <!-- Login prompt for guests -->
+                                    <div v-if="!auth?.user"
+                                        class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                        <div class="text-center">
+                                            <p class="text-blue-800 dark:text-blue-200 text-sm mb-2">
+                                                New to Barmaja Academy?
+                                            </p>
+                                            <Link href="/register"
+                                                class="text-blue-600 dark:text-blue-400 font-semibold hover:underline text-sm">
+                                            Create an account
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- Add to Wishlist -->
                                 <button
@@ -317,10 +382,8 @@ const enrollInCourse = () => {
 
                                 <div class="space-y-4">
                                     <div v-for="(content, index) in course.contents" :key="content.id"
-                                        class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                                        <Link :href="route('frontend.showContent', { contetnt_id: content.id })">
-
-                                        <div class="p-4 bg-gray-50 dark:bg-gray-700">
+                                        class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:border-blue-300 dark:hover:border-blue-600 transition-colors">
+                                        <div class="p-4 bg-gray-50 dark:bg-gray-700 cursor-pointer">
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center">
                                                     <span
@@ -338,14 +401,21 @@ const enrollInCourse = () => {
                                                         Video
                                                     </span>
                                                     <span class="text-sm text-gray-500 dark:text-gray-400">15 min</span>
+                                                    <i v-if="!isEnrolled" class="fas fa-lock text-gray-400"></i>
                                                 </div>
                                             </div>
 
                                             <p class="text-gray-600 dark:text-gray-300 mt-2 text-sm line-clamp-2">
                                                 {{ content.content_en.substring(0, 150) }}...
                                             </p>
+
+                                            <!-- Show enrollment prompt for locked content -->
+                                            <div v-if="!isEnrolled"
+                                                class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                                                <i class="fas fa-info-circle mr-1"></i>
+                                                Enroll to access this lesson
+                                            </div>
                                         </div>
-                                        </Link>
                                     </div>
                                 </div>
                             </div>
@@ -483,7 +553,7 @@ const enrollInCourse = () => {
                             <div class="mb-4">
                                 <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
                                     <span>Completed</span>
-                                    <span>0%</span>
+                                    <span>{{ isEnrolled ? '0' : '0' }}%</span>
                                 </div>
                                 <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                     <div class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
@@ -491,7 +561,8 @@ const enrollInCourse = () => {
                             </div>
 
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                Enroll to start tracking your progress through this course.
+                                {{ isEnrolled ? 'Start learning to track your progress!' :
+                                    'Enroll to start tracking your progress through this course.' }}
                             </p>
                         </div>
                     </div>

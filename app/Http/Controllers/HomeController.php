@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BlogPost;
 use Inertia\Inertia;
 use App\Models\Course;
-use App\Models\CourseContent;
+use App\Models\BlogPost;
 use Illuminate\Http\Request;
+use App\Models\CourseContent;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -35,12 +36,16 @@ class HomeController extends Controller
     public function showCourse($id)
     {
         $course = Course::with(['contents', 'comments'])->findOrFail($id);
-        return Inertia::render(
-            'Course',
-            [
-                'course' => $course
-            ]
-        );
+
+        $isEnrolled = false;
+        if (Auth::check()) {
+            $isEnrolled = Auth::user()->courses()->where('course_id', $id)->exists();
+        }
+
+        return Inertia::render('Course', [
+            'course' => $course,
+            'isEnrolled' => $isEnrolled
+        ]);
     }
     public function showBlogs()
     {
@@ -66,29 +71,43 @@ class HomeController extends Controller
     {
         return Inertia::render('Contact-us');
     }
-    public function showContent($content_id)
+    public function showContent($content_id = null, $course_id = null)
     {
-        // $content = CourseContent::with(['comments'])->findOrFail($content_id);
-        $content = CourseContent::with(['comments.user'])->findOrFail($content_id);
 
-        // Get the course information
-        $course = Course::findOrFail($content->course_id);
-        // Get all lessons for this course (for navigation)
-        $allLessons = CourseContent::where('course_id', $content->course_id)
+        // Case 1: content_id is given → find content, then course
+        if ($content_id) {
+            $content = CourseContent::with(['comments.user'])->findOrFail($content_id);
+            $course = Course::findOrFail($content->course_id);
+        }
+
+        // Case 2: Only course_id is given → find first content
+        elseif ($course_id) {
+            $course = Course::findOrFail($course_id);
+
+            $content = CourseContent::with(['comments.user'])
+                ->where('course_id', $course->id)
+                ->where('is_active', 1)
+                ->orderBy('sort_order')
+                ->firstOrFail();
+        }
+
+        // Case 3: Nothing provided → error
+        else {
+            abort(404, 'No content or course provided.');
+        }
+
+        // Get all lessons for the sidebar/nav
+        $allLessons = CourseContent::where('course_id', $course->id)
             ->where('is_active', 1)
             ->orderBy('sort_order')
             ->select('id', 'title_en', 'title_ar', 'sort_order', 'is_active', 'video_url')
             ->get();
-        // Optional: Get user progress if you have user authentication
+
+        // Optionally calculate user progress
         $progress = null;
         if (auth()->check()) {
-            // Calculate user progress
-            $totalLessons = $allLessons->count();
-            $completedLessons = 0; // You'd get this from a user_progress table
             $progress = [
-                'completed_lessons' => $completedLessons,
-                'total_lessons' => $totalLessons,
-                'percentage' => $totalLessons > 0 ? ($completedLessons / $totalLessons) * 100 : 0
+                'total_lessons' => $allLessons->count(),
             ];
         }
 

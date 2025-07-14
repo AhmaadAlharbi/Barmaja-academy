@@ -8,6 +8,7 @@ use App\Http\Controllers\BlogPostController;
 use App\Http\Controllers\CourseContentCommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CourseContentController;
+use App\Http\Controllers\CourseUserController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/courses/list', [HomeController::class, 'showCourses'])->name('frontend.courses.list');
@@ -16,10 +17,12 @@ Route::get('courses-list/{id}/course', [HomeController::class, 'showCourse'])->n
 Route::get('/blogs/list', [HomeController::class, 'showBlogs'])->name('frontend.blogs.list');
 Route::get('blogs-list/{id}/blog', [HomeController::class, 'showBlog'])->name('frontend.show.blog');
 Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('frontend.contact-us');
-Route::get('/course-content/{contetnt_id}', [HomeController::class, 'showContent'])->name('frontend.showContent');
+Route::get('/course/{course_id}/content/{content_id?}', [HomeController::class, 'showContent'])->name('course.content');
+
 Route::post('/course-content/comment', [CourseContentCommentController::class, 'store'])->name('comments.store');
 Route::delete('/course-content/comment/{id}', [CourseContentCommentController::class, 'destroy'])->name('comments.destroy');
-
+Route::get('/enroll-course/{id}', [CourseUserController::class, 'enrollPage'])->name('enroll.page');
+Route::post('/enroll-course', [CourseUserController::class, 'enroll'])->name('course.enroll');
 // Dashboard routes
 Route::middleware(['auth', 'verified'])->group(function () {
     // Main dashboard

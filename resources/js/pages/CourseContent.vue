@@ -57,37 +57,13 @@ const props = defineProps<{
     };
 }>();
 
-// Reactive data
-const isVideoPlaying = ref(false);
-const showNotes = ref(false);
-const userNotes = ref('');
-const isBookmarked = ref(false);
-const videoProgress = ref(0);
+
 const showComments = ref(true);
 
 // Comment form
 const commentForm = useForm({
     comment: '',
     course_content_id: props.content.id,
-});
-
-// Computed properties
-const currentLessonIndex = computed(() => {
-    return props.allLessons?.findIndex(lesson => lesson.id === props.content.id) ?? 0;
-});
-
-const previousLesson = computed(() => {
-    if (!props.allLessons || currentLessonIndex.value <= 0) return null;
-    return props.allLessons[currentLessonIndex.value - 1];
-});
-
-const nextLesson = computed(() => {
-    if (!props.allLessons || currentLessonIndex.value >= props.allLessons.length - 1) return null;
-    return props.allLessons[currentLessonIndex.value + 1];
-});
-
-const progressPercentage = computed(() => {
-    return props.progress?.percentage || 0;
 });
 
 const commentsCount = computed(() => {
@@ -101,33 +77,7 @@ const sortedComments = computed(() => {
     );
 });
 
-// Methods
-const toggleBookmark = () => {
-    isBookmarked.value = !isBookmarked.value;
-    // Here you would typically make an API call to save the bookmark
-    console.log('Bookmark toggled:', isBookmarked.value);
-};
 
-const saveNotes = () => {
-    // Handle saving notes to backend
-    console.log('Saving notes:', userNotes.value);
-    // You can make an API call here
-};
-
-const markAsComplete = () => {
-    // Handle marking lesson as complete
-    console.log('Marking lesson as complete');
-    // Navigate to next lesson or show completion
-    if (nextLesson.value) {
-        // You would typically navigate to the next lesson
-        console.log('Moving to next lesson:', nextLesson.value.id);
-    }
-};
-
-const onVideoProgress = (progress: number) => {
-    videoProgress.value = progress;
-    // You can track video progress here
-};
 
 const getVideoEmbedUrl = (url: string) => {
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
@@ -226,22 +176,7 @@ const getInitials = (name: string) => {
                         <span class="text-gray-900 dark:text-white">{{ content.title_en }}</span>
                     </nav>
 
-                    <!-- Progress -->
-                    <div class="flex items-center space-x-4">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
-                            Lesson {{ content.sort_order }} of {{ allLessons?.length || 1 }}
-                        </div>
-                        <div class="w-32">
-                            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-                                <span>Progress</span>
-                                <span>{{ Math.round(progressPercentage) }}%</span>
-                            </div>
-                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                    :style="`width: ${progressPercentage}%`"></div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -290,18 +225,7 @@ const getInitials = (name: string) => {
                                 </h1>
                             </div>
 
-                            <!-- Action Buttons -->
-                            <div class="flex items-center space-x-2 ml-4">
-                                <button @click="toggleBookmark"
-                                    :class="isBookmarked ? 'text-red-600 dark:text-red-400' : 'text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
-                                    class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                    <i :class="isBookmarked ? 'fas fa-heart' : 'far fa-heart'" class="text-xl"></i>
-                                </button>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                    <i class="fas fa-share text-xl"></i>
-                                </button>
-                            </div>
+
                         </div>
 
                         <!-- Lesson Content -->
@@ -311,33 +235,9 @@ const getInitials = (name: string) => {
                             </div>
                         </div>
 
-                        <!-- Lesson Actions -->
-                        <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                            <button @click="markAsComplete"
-                                class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center">
-                                <i class="fas fa-check mr-2"></i>
-                                Mark as Complete
-                            </button>
-                            <button @click="showNotes = !showNotes"
-                                class="flex-1 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center">
-                                <i class="fas fa-sticky-note mr-2"></i>
-                                {{ showNotes ? 'Hide Notes' : 'Take Notes' }}
-                            </button>
-                        </div>
 
-                        <!-- Notes Section -->
-                        <div v-if="showNotes" class="mt-6 p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">My Notes</h3>
-                            <textarea v-model="userNotes" rows="6" placeholder="Write your notes about this lesson..."
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none">
-                            </textarea>
-                            <div class="flex justify-end mt-4">
-                                <button @click="saveNotes"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
-                                    Save Notes
-                                </button>
-                            </div>
-                        </div>
+
+
                     </div>
 
                     <!-- Comments Section -->
@@ -459,38 +359,7 @@ const getInitials = (name: string) => {
                         </div>
                     </div>
 
-                    <!-- Navigation -->
-                    <div class="flex justify-between items-center">
-                        <!-- Previous Lesson -->
-                        <div class="flex-1">
-                            <Link v-if="previousLesson" :href="`/course-content/${previousLesson.id}`"
-                                class="group flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                            <div class="flex items-center">
-                                <i class="fas fa-chevron-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
-                                <div>
-                                    <div class="text-sm">Previous</div>
-                                    <div class="font-medium">{{ previousLesson.title_en }}</div>
-                                </div>
-                            </div>
-                            </Link>
-                        </div>
 
-                        <!-- Next Lesson -->
-                        <div class="flex-1 text-right">
-                            <Link v-if="nextLesson" :href="`/course-content/${nextLesson.id}`"
-                                class="group flex items-center justify-end text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                            <div>
-                                <div class="text-sm">Next</div>
-                                <div class="font-medium">{{ nextLesson.title_en }}</div>
-                            </div>
-                            <i class="fas fa-chevron-right ml-2 group-hover:translate-x-1 transition-transform"></i>
-                            </Link>
-                            <div v-else class="text-gray-500 dark:text-gray-400">
-                                <div class="text-sm">🎉 Course Complete!</div>
-                                <div class="font-medium">Well done!</div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Sidebar -->
