@@ -71,19 +71,16 @@ class HomeController extends Controller
     {
         return Inertia::render('Contact-us');
     }
-    public function showContent($content_id = null, $course_id = null)
+    public function showContent($course_id, $content_id = null)
     {
-
         // Case 1: content_id is given → find content, then course
         if ($content_id) {
             $content = CourseContent::with(['comments.user'])->findOrFail($content_id);
             $course = Course::findOrFail($content->course_id);
         }
-
-        // Case 2: Only course_id is given → find first content
-        elseif ($course_id) {
+        // Case 2: only course_id is given → get first content
+        else {
             $course = Course::findOrFail($course_id);
-
             $content = CourseContent::with(['comments.user'])
                 ->where('course_id', $course->id)
                 ->where('is_active', 1)
@@ -91,19 +88,20 @@ class HomeController extends Controller
                 ->firstOrFail();
         }
 
-        // Case 3: Nothing provided → error
-        else {
-            abort(404, 'No content or course provided.');
+        // Check enrollment
+        $isEnrolled = false;
+        if (Auth::check()) {
+            $isEnrolled = Auth::user()->courses()->where('course_id', $course->id)->exists();
         }
 
-        // Get all lessons for the sidebar/nav
+        // Get all lessons
         $allLessons = CourseContent::where('course_id', $course->id)
             ->where('is_active', 1)
             ->orderBy('sort_order')
             ->select('id', 'title_en', 'title_ar', 'sort_order', 'is_active', 'video_url')
             ->get();
 
-        // Optionally calculate user progress
+        // Calculate progress
         $progress = null;
         if (auth()->check()) {
             $progress = [
@@ -115,7 +113,8 @@ class HomeController extends Controller
             'content' => $content,
             'course' => $course,
             'allLessons' => $allLessons,
-            'progress' => $progress
+            'progress' => $progress,
+            'isEnrolled' => $isEnrolled,
         ]);
     }
 }

@@ -83,7 +83,7 @@ const enrollInCourse = () => {
         return;
     }
 
-    enrollForm.post('/enroll-course', {
+    enrollForm.get(`/enroll-course/${props.course.id}`, {
         onSuccess: () => {
             // Will be redirected by the controller
             console.log('Enrollment successful');
@@ -377,43 +377,220 @@ const formatPrice = (price: number) => {
                             </div>
 
                             <!-- Curriculum Tab -->
+                            <!-- Curriculum Tab -->
                             <div v-if="activeTab === 'curriculum'">
                                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Course Curriculum</h2>
 
-                                <div class="space-y-4">
-                                    <div v-for="(content, index) in course.contents" :key="content.id"
-                                        class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:border-blue-300 dark:hover:border-blue-600 transition-colors">
-                                        <div class="p-4 bg-gray-50 dark:bg-gray-700 cursor-pointer">
+                                <!-- Course Stats -->
+                                <div
+                                    class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6 mb-8">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{
+                                                course.contents.length }}</div>
+                                            <div class="text-sm text-gray-600 dark:text-gray-400">Total Lessons</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">24h 30m
+                                            </div>
+                                            <div class="text-sm text-gray-600 dark:text-gray-400">Total Duration</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{
+                                                isEnrolled ? course.contents.length : 0 }}</div>
+                                            <div class="text-sm text-gray-600 dark:text-gray-400">Accessible</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Enrollment Notice for Non-Enrolled Users -->
+                                <div v-if="!isEnrolled"
+                                    class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-6 mb-8">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-info-circle text-blue-400 text-xl"></i>
+                                        </div>
+                                        <div class="ml-4 flex-1">
+                                            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">
+                                                Preview Mode
+                                            </h3>
+                                            <p class="text-blue-700 dark:text-blue-300 mt-1">
+                                                You're viewing the course outline. Enroll to access all lessons and
+                                                start learning.
+                                            </p>
+                                        </div>
+                                        <div class="ml-6">
+                                            <button @click="enrollInCourse" :disabled="enrollForm.processing"
+                                                class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-semibold transition-all duration-300">
+                                                <i v-if="enrollForm.processing" class="fas fa-spinner fa-spin mr-2"></i>
+                                                <i v-else class="fas fa-play mr-2"></i>
+                                                {{ enrollForm.processing ? 'Processing...' : 'Enroll Now' }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Curriculum Content -->
+                                <div class="space-y-3">
+                                    <div v-for="(content, index) in course.contents" :key="content.id" :class="[
+                                        'border rounded-xl overflow-hidden transition-all duration-300 group',
+                                        isEnrolled
+                                            ? 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md cursor-pointer bg-white dark:bg-gray-800'
+                                            : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50'
+                                    ]">
+
+                                        <!-- Lesson Item -->
+                                        <div class="p-6">
                                             <div class="flex items-center justify-between">
-                                                <div class="flex items-center">
-                                                    <span
-                                                        class="text-sm font-medium text-gray-500 dark:text-gray-400 mr-3">
-                                                        Lesson {{ content.sort_order }}
-                                                    </span>
-                                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                                        {{ content.title_en }}
-                                                    </h3>
+                                                <!-- Left Side - Lesson Info -->
+                                                <div class="flex items-center flex-1">
+                                                    <!-- Lesson Number -->
+                                                    <div :class="[
+                                                        'flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mr-4 font-bold text-sm',
+                                                        isEnrolled
+                                                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                                                            : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                                                    ]">
+                                                        {{ content.sort_order }}
+                                                    </div>
+
+                                                    <!-- Title and Description -->
+                                                    <div class="flex-1">
+                                                        <h3 :class="[
+                                                            'text-lg font-semibold mb-1',
+                                                            isEnrolled
+                                                                ? 'text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                                                                : 'text-gray-600 dark:text-gray-400'
+                                                        ]">
+                                                            {{ content.title_en }}
+                                                        </h3>
+                                                        <p :class="[
+                                                            'text-sm line-clamp-2',
+                                                            isEnrolled
+                                                                ? 'text-gray-600 dark:text-gray-300'
+                                                                : 'text-gray-500 dark:text-gray-500'
+                                                        ]">
+                                                            {{ content.content_en.length > 120 ?
+                                                                content.content_en.substring(0, 120) + '...' :
+                                                                content.content_en }}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div class="flex items-center space-x-2">
-                                                    <span v-if="content.video_url"
-                                                        class="text-blue-600 dark:text-blue-400">
-                                                        <i class="fas fa-play-circle mr-1"></i>
-                                                        Video
-                                                    </span>
-                                                    <span class="text-sm text-gray-500 dark:text-gray-400">15 min</span>
-                                                    <i v-if="!isEnrolled" class="fas fa-lock text-gray-400"></i>
+
+                                                <!-- Right Side - Lesson Meta -->
+                                                <div class="flex items-center space-x-4 ml-6">
+                                                    <!-- Video Badge -->
+                                                    <div v-if="content.video_url" :class="[
+                                                        'flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium',
+                                                        isEnrolled
+                                                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                                                            : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                                                    ]">
+                                                        <i class="fas fa-play"></i>
+                                                        <span>Video</span>
+                                                    </div>
+
+                                                    <!-- Duration -->
+                                                    <div :class="[
+                                                        'text-sm font-medium',
+                                                        isEnrolled
+                                                            ? 'text-gray-500 dark:text-gray-400'
+                                                            : 'text-gray-400 dark:text-gray-500'
+                                                    ]">
+                                                        15 min
+                                                    </div>
+
+                                                    <!-- Status Icon -->
+                                                    <div class="flex items-center">
+                                                        <div v-if="isEnrolled"
+                                                            class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                                                            <i
+                                                                class="fas fa-play text-green-600 dark:text-green-400 text-sm"></i>
+                                                        </div>
+                                                        <div v-else
+                                                            class="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                                                            <i class="fas fa-lock text-gray-400 text-sm"></i>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <p class="text-gray-600 dark:text-gray-300 mt-2 text-sm line-clamp-2">
-                                                {{ content.content_en.substring(0, 150) }}...
+                                            <!-- Enrolled: Action Button -->
+                                            <div v-if="isEnrolled"
+                                                class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                                <Link
+                                                    :href="route('course.content', { course_id: course.id, content_id: content.id })"
+                                                    class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm transition-colors">
+                                                <i class="fas fa-arrow-right mr-2"></i>
+                                                Start Lesson
+                                                </Link>
+                                            </div>
+
+                                            <!-- Non-Enrolled: Lock Notice -->
+                                            <div v-else class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                                <div class="flex items-center justify-between">
+                                                    <div
+                                                        class="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                                                        <i class="fas fa-lock mr-2"></i>
+                                                        <span>Enroll to access this lesson</span>
+                                                    </div>
+                                                    <button @click="enrollInCourse" :disabled="enrollForm.processing"
+                                                        class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm transition-colors disabled:opacity-50">
+                                                        <i v-if="enrollForm.processing"
+                                                            class="fas fa-spinner fa-spin mr-1"></i>
+                                                        <i v-else class="fas fa-unlock mr-1"></i>
+                                                        {{ enrollForm.processing ? 'Processing...' : 'Unlock' }}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bottom Enrollment Card -->
+                                <div v-if="!isEnrolled" class="mt-12">
+                                    <div
+                                        class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-8 text-white text-center">
+                                        <div class="max-w-2xl mx-auto">
+                                            <h3 class="text-2xl font-bold mb-4">
+                                                🚀 Ready to Start Your Journey?
+                                            </h3>
+                                            <p class="text-indigo-100 mb-6 text-lg">
+                                                Join {{ course.contents.length }} comprehensive lessons and build
+                                                real-world skills that matter.
                                             </p>
 
-                                            <!-- Show enrollment prompt for locked content -->
-                                            <div v-if="!isEnrolled"
-                                                class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                                                <i class="fas fa-info-circle mr-1"></i>
-                                                Enroll to access this lesson
+                                            <!-- Features Grid -->
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                                                <div class="bg-white/10 rounded-lg p-4">
+                                                    <i class="fas fa-infinity text-2xl mb-2"></i>
+                                                    <div class="text-sm font-medium">Lifetime Access</div>
+                                                </div>
+                                                <div class="bg-white/10 rounded-lg p-4">
+                                                    <i class="fas fa-certificate text-2xl mb-2"></i>
+                                                    <div class="text-sm font-medium">Certificate</div>
+                                                </div>
+                                                <div class="bg-white/10 rounded-lg p-4">
+                                                    <i class="fas fa-mobile-alt text-2xl mb-2"></i>
+                                                    <div class="text-sm font-medium">Mobile Access</div>
+                                                </div>
+                                            </div>
+
+                                            <!-- CTA Button -->
+                                            <div
+                                                class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                                                <button @click="enrollInCourse" :disabled="enrollForm.processing"
+                                                    class="bg-white text-indigo-600 hover:bg-gray-100 disabled:bg-gray-300 disabled:cursor-not-allowed px-8 py-3 rounded-lg font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                                    <i v-if="enrollForm.processing"
+                                                        class="fas fa-spinner fa-spin mr-2"></i>
+                                                    <i v-else class="fas fa-rocket mr-2"></i>
+                                                    {{ enrollForm.processing ? 'Processing...' : `Enroll for
+                                                    ${formatPrice(course.price)}` }}
+                                                </button>
+                                                <div class="text-indigo-100 text-sm">
+                                                    <i class="fas fa-shield-alt mr-2"></i>
+                                                    30-day money-back guarantee
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

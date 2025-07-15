@@ -55,7 +55,7 @@ class CourseUserController extends Controller
                 'enrolled_at' => now()
             ]);
 
-            return redirect()->route('course.show', $course->id)
+            return redirect()->route('course.content', $course->id)
                 ->with('success', 'Congratulations! You have successfully enrolled in the course.');
         } catch (\Exception $e) {
             \Log::error('Failed to enroll user in course', [

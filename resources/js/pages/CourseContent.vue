@@ -42,6 +42,7 @@ const props = defineProps<{
         title_ar: string;
         description_en: string;
         slug: string;
+        price?: number;
     };
     allLessons?: Array<{
         id: number;
@@ -55,10 +56,15 @@ const props = defineProps<{
         total_lessons: number;
         percentage: number;
     };
+    isEnrolled?: boolean;
 }>();
 
-
 const showComments = ref(true);
+
+// Enrollment form
+const enrollForm = useForm({
+    course_id: props.course?.id,
+});
 
 // Comment form
 const commentForm = useForm({
@@ -77,8 +83,6 @@ const sortedComments = computed(() => {
     );
 });
 
-
-
 const getVideoEmbedUrl = (url: string) => {
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
         const videoId = url.split('v=')[1] || url.split('/').pop();
@@ -91,6 +95,28 @@ const getVideoEmbedUrl = (url: string) => {
     return url;
 };
 
+// Enrollment function
+const enrollInCourse = () => {
+    if (!props.auth?.user) {
+        window.location.href = '/login';
+        return;
+    }
+
+    enrollForm.post('/enroll-course', {
+        onSuccess: () => {
+            console.log('Enrollment successful');
+        },
+        onError: (errors) => {
+            console.error('Enrollment failed:', errors);
+            if (errors.course_id) {
+                alert('Invalid course selected.');
+            } else {
+                alert('Failed to enroll in course. Please try again.');
+            }
+        }
+    });
+};
+
 // Comment methods
 const submitComment = () => {
     if (!props.auth?.user) {
@@ -98,10 +124,14 @@ const submitComment = () => {
         return;
     }
 
+    if (!props.isEnrolled) {
+        alert('Please enroll in the course to add comments');
+        return;
+    }
+
     commentForm.post('/course-content/comment', {
         onSuccess: () => {
             commentForm.reset();
-            // Page will refresh with new comments
         },
         onError: (errors) => {
             console.error('Error submitting comment:', errors);
@@ -111,21 +141,16 @@ const submitComment = () => {
 
 // Delete comment method with confirmation
 const deleteComment = (commentId: number) => {
-    // Show confirmation dialog
     const confirmed = confirm('Are you sure you want to delete this comment? This action cannot be undone.');
 
     if (confirmed) {
         router.delete(`/course-content/comment/${commentId}`, {
             onSuccess: () => {
-                // Page will refresh and comment will be removed
                 console.log('Comment deleted successfully');
             },
             onError: (errors) => {
                 console.error('Error deleting comment:', errors);
                 alert('Failed to delete comment. Please try again.');
-            },
-            onFinish: () => {
-                // Optional: Handle any cleanup after the request finishes
             }
         });
     }
@@ -144,6 +169,13 @@ const formatDate = (dateString: string) => {
 
 const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
+};
+
+const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    }).format(price);
 };
 </script>
 
@@ -176,7 +208,47 @@ const getInitials = (name: string) => {
                         <span class="text-gray-900 dark:text-white">{{ content.title_en }}</span>
                     </nav>
 
+                    <!-- Enrollment Status -->
+                    <div v-if="!isEnrolled" class="flex items-center space-x-4">
+                        <div class="flex items-center text-amber-600 dark:text-amber-400 text-sm">
+                            <i class="fas fa-lock mr-2"></i>
+                            <span>Preview Mode</span>
+                        </div>
+                        <button @click="enrollInCourse" :disabled="enrollForm.processing"
+                            class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors">
+                            <i v-if="enrollForm.processing" class="fas fa-spinner fa-spin mr-2"></i>
+                            <i v-else class="fas fa-unlock mr-2"></i>
+                            {{ enrollForm.processing ? 'Processing...' : 'Enroll Now' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Enrollment Notice for Non-Enrolled Users -->
+        <div v-if="!isEnrolled" class="bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mr-3"></i>
+                        <div>
+                            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">
+                                You're in Preview Mode
+                            </h3>
+                            <p class="text-blue-700 dark:text-blue-300 text-sm">
+                                Enroll in this course to access the full lesson content, videos, and participate in
+                                discussions.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-blue-800 dark:text-blue-200">
+                                {{ course?.price ? formatPrice(course.price) : 'Free' }}
+                            </div>
+                            <div class="text-sm text-blue-600 dark:text-blue-400">One-time payment</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -187,13 +259,48 @@ const getInitials = (name: string) => {
                 <!-- Main Content Area -->
                 <div class="lg:col-span-2 space-y-8">
                     <!-- Video Player -->
-                    <div v-if="content.video_url"
-                        class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
-                        <div class="aspect-video">
-                            <iframe :src="getVideoEmbedUrl(content.video_url)" class="w-full h-full" frameborder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                            </iframe>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+                        <div class="aspect-video relative">
+                            <!-- Enrolled User: Full Video Access -->
+                            <div v-if="isEnrolled && content.video_url">
+                                <iframe :src="getVideoEmbedUrl(content.video_url)" class="w-full h-full" frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+
+                            <!-- Non-Enrolled User: Locked Video -->
+                            <div v-else-if="!isEnrolled && content.video_url"
+                                class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div
+                                        class="w-20 h-20 bg-white dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                                        <i class="fas fa-lock text-gray-400 dark:text-gray-300 text-2xl"></i>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                        Video Locked
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
+                                        Enroll in this course to access the full video lesson and start learning.
+                                    </p>
+                                    <button @click="enrollInCourse" :disabled="enrollForm.processing"
+                                        class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+                                        <i v-if="enrollForm.processing" class="fas fa-spinner fa-spin mr-2"></i>
+                                        <i v-else class="fas fa-play mr-2"></i>
+                                        {{ enrollForm.processing ? 'Processing...' : 'Unlock Video' }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- No Video Available -->
+                            <div v-else
+                                class="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                                <div class="text-center">
+                                    <i class="fas fa-file-text text-4xl text-gray-400 dark:text-gray-500 mb-4"></i>
+                                    <p class="text-gray-600 dark:text-gray-400">This lesson contains text content only
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -203,48 +310,114 @@ const getInitials = (name: string) => {
                         <div class="flex items-start justify-between mb-6">
                             <div class="flex-1">
                                 <div class="flex items-center space-x-3 mb-3">
-                                    <span
-                                        class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium rounded-full">
+                                    <span :class="[
+                                        'px-3 py-1 text-sm font-medium rounded-full',
+                                        isEnrolled
+                                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                                    ]">
                                         Lesson {{ content.sort_order }}
                                     </span>
-                                    <div class="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                                    <div :class="[
+                                        'flex items-center text-sm',
+                                        isEnrolled
+                                            ? 'text-gray-500 dark:text-gray-400'
+                                            : 'text-gray-400 dark:text-gray-500'
+                                    ]">
                                         <i class="fas fa-clock mr-1"></i>
                                         <span>15 min</span>
                                     </div>
-                                    <div class="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                                    <div :class="[
+                                        'flex items-center text-sm',
+                                        isEnrolled
+                                            ? 'text-gray-500 dark:text-gray-400'
+                                            : 'text-gray-400 dark:text-gray-500'
+                                    ]">
                                         <i class="fas fa-eye mr-1"></i>
                                         <span>1,234 views</span>
                                     </div>
-                                    <div class="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                                    <div :class="[
+                                        'flex items-center text-sm',
+                                        isEnrolled
+                                            ? 'text-gray-500 dark:text-gray-400'
+                                            : 'text-gray-400 dark:text-gray-500'
+                                    ]">
                                         <i class="fas fa-comments mr-1"></i>
                                         <span>{{ commentsCount }} comments</span>
                                     </div>
                                 </div>
-                                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                                <h1 :class="[
+                                    'text-3xl font-bold mb-4',
+                                    isEnrolled
+                                        ? 'text-gray-900 dark:text-white'
+                                        : 'text-gray-600 dark:text-gray-400'
+                                ]">
                                     {{ content.title_en }}
                                 </h1>
                             </div>
-
-
                         </div>
 
                         <!-- Lesson Content -->
-                        <div class="prose dark:prose-invert max-w-none mb-8">
-                            <div class="text-gray-700 dark:text-gray-300 leading-relaxed">
-                                {{ content.content_en }}
+                        <div class="relative">
+                            <!-- Enrolled User: Full Content Access -->
+                            <div v-if="isEnrolled" class="prose dark:prose-invert max-w-none mb-8">
+                                <div class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                    {{ content.content_en }}
+                                </div>
+                            </div>
+
+                            <!-- Non-Enrolled User: Locked Content -->
+                            <div v-else class="relative">
+                                <!-- Lock Overlay -->
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-white via-white/95 to-white/80 dark:from-gray-800 dark:via-gray-800/95 dark:to-gray-800/80 z-10 flex items-center justify-center rounded-lg">
+                                    <div class="text-center p-8">
+                                        <div
+                                            class="w-16 h-16 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <i class="fas fa-lock text-gray-500 dark:text-gray-400 text-xl"></i>
+                                        </div>
+                                        <h4 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                            Content Locked
+                                        </h4>
+                                        <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
+                                            Enroll in this course to access the full lesson content and learning
+                                            materials.
+                                        </p>
+                                        <button @click="enrollInCourse" :disabled="enrollForm.processing"
+                                            class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+                                            <i v-if="enrollForm.processing" class="fas fa-spinner fa-spin mr-2"></i>
+                                            <i v-else class="fas fa-unlock mr-2"></i>
+                                            {{ enrollForm.processing ? 'Processing...' : 'Unlock Content' }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Blurred Content Preview -->
+                                <div
+                                    class="prose dark:prose-invert max-w-none mb-8 filter blur-sm select-none pointer-events-none">
+                                    <div class="text-gray-500 dark:text-gray-500 leading-relaxed">
+                                        {{ content.content_en.substring(0, 300) }}...
+                                    </div>
+                                    <div class="space-y-3 mt-4">
+                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-
-
-
                     </div>
 
                     <!-- Comments Section -->
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
                         <!-- Comments Header -->
                         <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
+                            <h3 :class="[
+                                'text-2xl font-bold',
+                                isEnrolled
+                                    ? 'text-gray-900 dark:text-white'
+                                    : 'text-gray-600 dark:text-gray-400'
+                            ]">
                                 Comments ({{ commentsCount }})
                             </h3>
                             <button @click="showComments = !showComments"
@@ -254,8 +427,31 @@ const getInitials = (name: string) => {
                         </div>
 
                         <div v-if="showComments">
-                            <!-- Add Comment Form -->
-                            <div v-if="auth?.user" class="mb-8 p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <!-- Enrollment required notice -->
+                            <div v-if="!isEnrolled"
+                                class="mb-8 p-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-lock text-amber-600 dark:text-amber-400 mr-3"></i>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-amber-800 dark:text-amber-200">
+                                            Comments Locked
+                                        </h4>
+                                        <p class="text-amber-700 dark:text-amber-300 text-sm mt-1">
+                                            Enroll in this course to read and participate in the discussion with other
+                                            students.
+                                        </p>
+                                    </div>
+                                    <button @click="enrollInCourse" :disabled="enrollForm.processing"
+                                        class="bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                                        <i v-if="enrollForm.processing" class="fas fa-spinner fa-spin mr-2"></i>
+                                        <i v-else class="fas fa-unlock mr-2"></i>
+                                        {{ enrollForm.processing ? 'Processing...' : 'Unlock' }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Add Comment Form (Enrolled Users Only) -->
+                            <div v-else-if="auth?.user" class="mb-8 p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                 <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Add a Comment</h4>
 
                                 <form @submit.prevent="submitComment">
@@ -268,7 +464,6 @@ const getInitials = (name: string) => {
                                                 'border-gray-300 dark:border-gray-600': !commentForm.errors.comment
                                             }"></textarea>
 
-                                        <!-- Error Message -->
                                         <div v-if="commentForm.errors.comment"
                                             class="mt-2 text-red-600 dark:text-red-400 text-sm">
                                             {{ commentForm.errors.comment }}
@@ -288,7 +483,7 @@ const getInitials = (name: string) => {
                             </div>
 
                             <!-- Login prompt for guests -->
-                            <div v-else
+                            <div v-else-if="isEnrolled"
                                 class="mb-8 p-6 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
                                 <div class="flex items-center">
                                     <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mr-3"></i>
@@ -303,8 +498,8 @@ const getInitials = (name: string) => {
                                 </div>
                             </div>
 
-                            <!-- Comments List -->
-                            <div v-if="commentsCount > 0" class="space-y-6">
+                            <!-- Comments List (Enrolled Users Only) -->
+                            <div v-if="isEnrolled && commentsCount > 0" class="space-y-6">
                                 <div v-for="comment in sortedComments" :key="comment.id"
                                     class="flex space-x-4 p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                     <!-- User Avatar -->
@@ -335,7 +530,6 @@ const getInitials = (name: string) => {
 
                                         <!-- Comment Actions -->
                                         <div class="flex items-center space-x-4 mt-3">
-
                                             <button
                                                 v-if="auth?.user?.id === comment.user_id || auth?.user?.role === 'admin'"
                                                 @click="deleteComment(comment.id)"
@@ -349,7 +543,7 @@ const getInitials = (name: string) => {
                             </div>
 
                             <!-- No Comments State -->
-                            <div v-else class="text-center py-12">
+                            <div v-else-if="isEnrolled && commentsCount === 0" class="text-center py-12">
                                 <i class="fas fa-comments text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
                                 <h4 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No comments yet
                                 </h4>
@@ -358,8 +552,6 @@ const getInitials = (name: string) => {
                             </div>
                         </div>
                     </div>
-
-
                 </div>
 
                 <!-- Sidebar -->
@@ -369,14 +561,24 @@ const getInitials = (name: string) => {
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Course Content</h3>
 
                         <div class="space-y-2 max-h-96 overflow-y-auto">
-                            <div v-for="lesson in allLessons" :key="lesson.id"
-                                :class="lesson.id === content.id ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700' : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
-                                class="border rounded-lg p-3 transition-colors cursor-pointer">
-                                <Link :href="`/course-content/${lesson.id}`" class="block">
+                            <div v-for="lesson in allLessons" :key="lesson.id" :class="[
+                                'border rounded-lg p-3 transition-colors',
+                                lesson.id === content.id
+                                    ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700'
+                                    : 'border-gray-200 dark:border-gray-700',
+                                isEnrolled
+                                    ? 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer'
+                                    : 'opacity-75'
+                            ]">
+                                <Link v-if="isEnrolled" :href="`/course-content/${lesson.id}`" class="block">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-3">
-                                        <div
-                                            class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm font-medium">
+                                        <div :class="[
+                                            'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium',
+                                            lesson.id === content.id
+                                                ? 'bg-blue-600 text-white'
+                                                : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+                                        ]">
                                             {{ lesson.sort_order }}
                                         </div>
                                         <div class="flex-1">
@@ -395,6 +597,31 @@ const getInitials = (name: string) => {
                                     </div>
                                 </div>
                                 </Link>
+
+                                <div v-else class="block">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-gray-400">
+                                                {{ lesson.sort_order }}
+                                            </div>
+                                            <div class="flex-1">
+                                                <h4
+                                                    class="font-medium text-gray-500 dark:text-gray-400 text-sm line-clamp-2">
+                                                    {{ lesson.title_en }}
+                                                </h4>
+                                                <div
+                                                    class="flex items-center text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                                    <i v-if="lesson.video_url" class="fas fa-play mr-1"></i>
+                                                    <span>15 min</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-gray-400">
+                                            <i class="fas fa-lock text-sm"></i>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -405,10 +632,16 @@ const getInitials = (name: string) => {
                             <i class="fas fa-arrow-left mr-2"></i>
                             Back to Course
                             </Link>
-                            <button
+                            <button v-if="isEnrolled"
                                 class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
                                 <i class="fas fa-download mr-2"></i>
                                 Download Resources
+                            </button>
+                            <button v-else @click="enrollInCourse" :disabled="enrollForm.processing"
+                                class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg font-medium transition-colors">
+                                <i v-if="enrollForm.processing" class="fas fa-spinner fa-spin mr-2"></i>
+                                <i v-else class="fas fa-unlock mr-2"></i>
+                                {{ enrollForm.processing ? 'Processing...' : 'Enroll to Access' }}
                             </button>
                         </div>
                     </div>
