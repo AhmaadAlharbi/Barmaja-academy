@@ -6,6 +6,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -39,6 +40,19 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        // Build your locale data
+        $localeData = [
+            'current' => LaravelLocalization::getCurrentLocale(),
+            'supported' => collect(LaravelLocalization::getSupportedLocales())
+                ->map(fn($props, $code) => [
+                    'code'   => $code,
+                    'native' => $props['native'],
+                    'url'    => LaravelLocalization::getLocalizedURL($code, null, [], true),
+                ])
+                ->values()
+                ->toArray()
+        ];
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -51,6 +65,8 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            // Updated structure to match Vue component expectations
+            'locale' => $localeData,
         ];
     }
 }
