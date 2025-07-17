@@ -20,9 +20,20 @@ class Course extends Model
         'is_published'
     ];
     // الدورات مفتوحة للمستخدمين الذين اشتروها
+    // public function users()
+    // {
+    //     return $this->belongsToMany(User::class)
+    //         ->withTimestamps();
+    // }
     public function users()
     {
-        return $this->belongsToMany(User::class)
+        return $this->belongsToMany(User::class, 'course_user')
+            ->withPivot([
+                'enrolled_at',
+                'payment_method',
+                'amount_paid',
+                'status'
+            ])
             ->withTimestamps();
     }
     public function contents()

@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Billable;
 
     /**
      * The attributes that are mass assignable.
@@ -44,9 +45,15 @@ class User extends Authenticatable
         ];
     }
 
+    // public function courses()
+    // {
+    //     return $this->belongsToMany(Course::class)
+    //         ->withTimestamps();
+    // }
     public function courses()
     {
         return $this->belongsToMany(Course::class)
+            ->withPivot(['enrolled_at', 'payment_method', 'amount_paid', 'status'])
             ->withTimestamps();
     }
     // التعليقات التي كتبها المستخدم
