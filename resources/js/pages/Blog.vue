@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import Navbar from '@/components/Navbar.vue';
+
+const page = usePage();
 
 // Props that would come from your Laravel backend
 defineProps<{
@@ -22,25 +25,160 @@ defineProps<{
     };
     relatedBlogs?: Array<{
         id: number;
+        title_ar: string;
         title_en: string;
         slug: string;
+        content_ar: string;
         content_en: string;
         published_at: string;
         created_at: string;
     }>;
 }>();
 
+// Get current locale
+const currentLocale = computed(() => page.props.locale?.current || 'en');
+const isRTL = computed(() => currentLocale.value === 'ar');
+
+// Get translations from props with fallbacks
+const translations = computed(() => page.props.translations?.blog_single || {});
+
+// Comprehensive fallback translations
+const fallbackTranslations = {
+    navigation: {
+        back_to_blog: isRTL.value ? 'العودة إلى المدونة' : 'Back to Blog'
+    },
+    article: {
+        author_default: isRTL.value ? 'أحمد خليل' : 'Ahmed Khalil',
+        author_title: isRTL.value ? 'مطور أول' : 'Senior Developer',
+        views: isRTL.value ? 'مشاهدة' : 'views',
+        likes: isRTL.value ? 'إعجاب' : 'likes',
+        comments: isRTL.value ? 'تعليق' : 'comments',
+        min_read: isRTL.value ? 'دقيقة قراءة' : 'min read',
+        share: isRTL.value ? 'شارك:' : 'Share:',
+        tags_title: isRTL.value ? 'العلامات:' : 'Tags:',
+        published_on: isRTL.value ? 'نُشر في' : 'Published on',
+        updated_on: isRTL.value ? 'تم التحديث في' : 'Updated on',
+        reading_time: isRTL.value ? 'وقت القراءة' : 'Reading time',
+        featured_image_alt: isRTL.value ? 'صورة المقال المميزة' : 'Article featured image',
+        author_bio_title: isRTL.value ? 'نبذة عن الكاتب' : 'About the Author'
+    },
+    author: {
+        bio_default: isRTL.value
+            ? 'مطور ويب متكامل أول في أكاديمية برمجة مع أكثر من ٨ سنوات من الخبرة في تقنيات الويب الحديثة. شغوف بالتعليم ومشاركة المعرفة مع مجتمع المطورين.'
+            : 'Senior Full-Stack Developer at Barmaja Academy with 8+ years of experience in modern web technologies. Passionate about teaching and sharing knowledge with the developer community.',
+        more_articles: isRTL.value ? 'المزيد من مقالات أحمد' : 'More articles by Ahmed',
+        follow_on: isRTL.value ? 'تابع على' : 'Follow on'
+    },
+    comments: {
+        title: isRTL.value ? 'التعليقات' : 'Comments',
+        leave_comment: isRTL.value ? 'اترك تعليق' : 'Leave a Comment',
+        your_name: isRTL.value ? 'اسمك' : 'Your name',
+        your_email: isRTL.value ? 'بريدك الإلكتروني' : 'Your email',
+        write_comment: isRTL.value ? 'اكتب تعليقك...' : 'Write your comment...',
+        post_comment: isRTL.value ? 'نشر التعليق' : 'Post Comment',
+        reply: isRTL.value ? 'رد' : 'Reply',
+        ago: isRTL.value ? 'منذ' : 'ago',
+        hours: isRTL.value ? 'ساعات' : 'hours',
+        minutes: isRTL.value ? 'دقائق' : 'minutes',
+        days: isRTL.value ? 'أيام' : 'days',
+        sample_comment_1: isRTL.value
+            ? 'مقال رائع! لقد ساعدني هذا حقاً في فهم المفاهيم بشكل أفضل. الأمثلة واضحة وسهلة المتابعة.'
+            : 'Great article! This really helped me understand the concepts better. The examples are clear and easy to follow.',
+        sample_comment_2: isRTL.value
+            ? 'شكراً لك على مشاركة هذه المعرفة! لقد كنت أواجه صعوبة مع هذا الموضوع وشرحك يجعله أوضح بكثير.'
+            : 'Thanks for sharing this knowledge! I\'ve been struggling with this topic and your explanation makes it much clearer.',
+        sample_author_1: isRTL.value ? 'سارة جونسون' : 'Sarah Johnson',
+        sample_author_2: isRTL.value ? 'مايك تشين' : 'Mike Chen'
+    },
+    related: {
+        title: isRTL.value ? 'مقالات ذات صلة' : 'Related Articles',
+        read_more: isRTL.value ? 'اقرأ المزيد' : 'Read more'
+    },
+    tags: {
+        javascript: isRTL.value ? 'جافاسكريبت' : 'JavaScript',
+        vue_js: isRTL.value ? 'فيو.جي اس' : 'Vue.js',
+        web_development: isRTL.value ? 'تطوير الويب' : 'Web Development',
+        tutorial: isRTL.value ? 'درس تعليمي' : 'Tutorial',
+        react: isRTL.value ? 'ريأكت' : 'React',
+        node_js: isRTL.value ? 'نود.جي اس' : 'Node.js',
+        css: isRTL.value ? 'سي اس اس' : 'CSS',
+        html: isRTL.value ? 'اتش تي ام ال' : 'HTML',
+        programming: isRTL.value ? 'البرمجة' : 'Programming',
+        frontend: isRTL.value ? 'الواجهة الأمامية' : 'Frontend',
+        backend: isRTL.value ? 'الخلفية' : 'Backend',
+        database: isRTL.value ? 'قاعدة البيانات' : 'Database'
+    },
+    social: {
+        twitter: isRTL.value ? 'تويتر' : 'Twitter',
+        linkedin: isRTL.value ? 'لينكد إن' : 'LinkedIn',
+        facebook: isRTL.value ? 'فيس بوك' : 'Facebook',
+        copy_link: isRTL.value ? 'نسخ الرابط' : 'Copy Link',
+        share_on: isRTL.value ? 'شارك على' : 'Share on'
+    },
+    footer: {
+        title: isRTL.value ? 'أكاديمية برمجة' : 'Barmaja Academy',
+        description: isRTL.value
+            ? 'تمكين المطورين بالمعرفة والرؤى'
+            : 'Empowering developers with knowledge and insights',
+        copyright: isRTL.value ? '© ٢٠٢٤ أكاديمية برمجة. جميع الحقوق محفوظة.' : '© 2024 Barmaja Academy. All rights reserved.',
+        links: {
+            home: isRTL.value ? 'الرئيسية' : 'Home',
+            courses: isRTL.value ? 'الدورات' : 'Courses',
+            blog: isRTL.value ? 'المدونة' : 'Blog',
+            about: isRTL.value ? 'من نحن' : 'About',
+            contact: isRTL.value ? 'اتصل بنا' : 'Contact'
+        }
+    }
+};
+
+// Get translation with fallback
+function getTranslation(path: string, fallback: string = '') {
+    const keys = path.split('.');
+    let value = translations.value;
+
+    for (const key of keys) {
+        if (value && typeof value === 'object' && key in value) {
+            value = value[key];
+        } else {
+            // Use fallback translation
+            let fallbackValue = fallbackTranslations;
+            for (const fallbackKey of keys) {
+                if (fallbackValue && typeof fallbackValue === 'object' && fallbackKey in fallbackValue) {
+                    fallbackValue = fallbackValue[fallbackKey];
+                } else {
+                    return fallback;
+                }
+            }
+            return fallbackValue;
+        }
+    }
+
+    return value || fallback;
+}
+
+// Helper function to get localized content
+function getLocalizedContent(item: any, field: string) {
+    return isRTL.value ? item[`${field}_ar`] : item[`${field}_en`];
+}
+
 // Helper function to estimate reading time
 const getReadingTime = (content: string) => {
     const wordsPerMinute = 200;
     const wordCount = content.split(' ').length;
     const minutes = Math.ceil(wordCount / wordsPerMinute);
-    return `${minutes} min read`;
+    return `${minutes} ${getTranslation('article.min_read')}`;
 };
 
 // Helper function to format date
 const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+    if (isRTL.value) {
+        return date.toLocaleDateString('ar-EG', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -53,31 +191,51 @@ const truncate = (text: string, length: number = 100) => {
     if (text.length <= length) return text;
     return text.substring(0, length) + '...';
 };
+
+// Helper function to format time ago
+const timeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffHours < 1) {
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+        return `${diffMinutes} ${getTranslation('comments.minutes')} ${getTranslation('comments.ago')}`;
+    } else if (diffHours < 24) {
+        return `${diffHours} ${getTranslation('comments.hours')} ${getTranslation('comments.ago')}`;
+    } else {
+        return `${diffDays} ${getTranslation('comments.days')} ${getTranslation('comments.ago')}`;
+    }
+};
 </script>
 
 <template>
 
-    <Head :title="`${blog.title_en} - Barmaja Academy Blog`">
+    <Head :title="`${getLocalizedContent(blog, 'title')} - ${getTranslation('footer.title')}`">
         <link rel="preconnect" href="https://rsms.me/" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700&display=swap"
             rel="stylesheet">
-        <meta name="description" :content="truncate(blog.content_en, 160)">
-        <meta property="og:title" :content="blog.title_en">
-        <meta property="og:description" :content="truncate(blog.content_en, 160)">
+        <meta name="description" :content="truncate(getLocalizedContent(blog, 'content'), 160)">
+        <meta property="og:title" :content="getLocalizedContent(blog, 'title')">
+        <meta property="og:description" :content="truncate(getLocalizedContent(blog, 'content'), 160)">
         <meta property="og:type" content="article">
     </Head>
 
-    <div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+    <div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300" :dir="isRTL ? 'rtl' : 'ltr'"
+        :class="{ 'font-tajawal': isRTL }">
         <Navbar />
 
         <!-- Back to Blog Navigation -->
         <section class="py-6 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <Link href="/blogs/list"
-                    class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>
-                Back to Blog
+                    class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                    :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
+                <i class="fas fa-arrow-left" :class="{ 'fas fa-arrow-right': isRTL }"></i>
+                <span>{{ getTranslation('navigation.back_to_blog') }}</span>
                 </Link>
             </div>
         </section>
@@ -87,56 +245,66 @@ const truncate = (text: string, length: number = 100) => {
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Article Meta -->
                 <div class="mb-8">
-                    <div class="flex items-center space-x-4 mb-6">
+                    <div class="flex items-center mb-6" :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
                         <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
                             alt="Author" class="w-12 h-12 rounded-full">
-                        <div>
-                            <p class="text-lg font-medium text-gray-900 dark:text-white">Ahmed Khalil</p>
-                            <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                        <div :class="{ 'text-right': isRTL }">
+                            <p class="text-lg font-medium text-gray-900 dark:text-white">
+                                {{ getTranslation('article.author_default') }}
+                            </p>
+                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400"
+                                :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
                                 <span>{{ formatDate(blog.published_at || blog.created_at) }}</span>
                                 <span>•</span>
-                                <span>{{ getReadingTime(blog.content_en) }}</span>
+                                <span>{{ getReadingTime(getLocalizedContent(blog, 'content')) }}</span>
                                 <span>•</span>
-                                <span>Senior Developer</span>
+                                <span>{{ getTranslation('article.author_title') }}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Article Title -->
-                    <h1 class="text-3xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
-                        {{ blog.title_en }}
+                    <h1 class="text-3xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-6"
+                        :class="{ 'text-right': isRTL }">
+                        {{ getLocalizedContent(blog, 'title') }}
                     </h1>
 
                     <!-- Article Stats -->
-                    <div class="flex items-center justify-between py-4 border-y border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                    <div class="flex items-center justify-between py-4 border-y border-gray-200 dark:border-gray-700"
+                        :class="{ 'flex-row-reverse': isRTL }">
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400"
+                            :class="isRTL ? 'space-x-reverse space-x-6' : 'space-x-6'">
                             <span class="flex items-center">
-                                <i class="fas fa-eye mr-1"></i>
-                                2.1k views
+                                <i class="fas fa-eye" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
+                                2.1k {{ getTranslation('article.views') }}
                             </span>
                             <span class="flex items-center">
-                                <i class="fas fa-heart mr-1"></i>
-                                89 likes
+                                <i class="fas fa-heart" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
+                                89 {{ getTranslation('article.likes') }}
                             </span>
                             <span class="flex items-center">
-                                <i class="fas fa-comment mr-1"></i>
-                                12 comments
+                                <i class="fas fa-comment" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
+                                12 {{ getTranslation('article.comments') }}
                             </span>
                         </div>
 
                         <!-- Share Buttons -->
-                        <div class="flex items-center space-x-3">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mr-2">Share:</span>
+                        <div class="flex items-center" :class="isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'">
+                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ getTranslation('article.share')
+                                }}</span>
                             <button
-                                class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+                                class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
+                                :title="getTranslation('social.twitter')">
                                 <i class="fab fa-twitter text-xs"></i>
                             </button>
                             <button
-                                class="w-8 h-8 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-900 transition-colors">
+                                class="w-8 h-8 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-900 transition-colors"
+                                :title="getTranslation('social.linkedin')">
                                 <i class="fab fa-linkedin text-xs"></i>
                             </button>
                             <button
-                                class="w-8 h-8 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-gray-900 transition-colors">
+                                class="w-8 h-8 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-gray-900 transition-colors"
+                                :title="getTranslation('social.copy_link')">
                                 <i class="fas fa-link text-xs"></i>
                             </button>
                         </div>
@@ -146,7 +314,8 @@ const truncate = (text: string, length: number = 100) => {
                 <!-- Featured Image -->
                 <div class="mb-10">
                     <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=1200&h=600&fit=crop"
-                        alt="Article featured image" class="w-full h-64 lg:h-96 object-cover rounded-2xl">
+                        :alt="getTranslation('article.featured_image_alt')"
+                        class="w-full h-64 lg:h-96 object-cover rounded-2xl">
                 </div>
             </div>
         </section>
@@ -155,10 +324,12 @@ const truncate = (text: string, length: number = 100) => {
         <section class="pb-16">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="prose prose-lg dark:prose-invert max-w-none">
-                    <!-- Blog Content - You'll replace this with your actual content -->
-                    <div class="text-gray-800 dark:text-gray-200 leading-relaxed space-y-6">
+                    <!-- Blog Content -->
+                    <div class="text-gray-800 dark:text-gray-200 leading-relaxed space-y-6"
+                        :class="{ 'text-right': isRTL }">
                         <!-- Split content into paragraphs for better formatting -->
-                        <template v-for="(paragraph, index) in blog.content_en.split('\n\n')" :key="index">
+                        <template v-for="(paragraph, index) in getLocalizedContent(blog, 'content').split('\n\n')"
+                            :key="index">
                             <p v-if="paragraph.trim()" class="text-lg leading-8">
                                 {{ paragraph.trim() }}
                             </p>
@@ -168,23 +339,13 @@ const truncate = (text: string, length: number = 100) => {
 
                 <!-- Article Tags -->
                 <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-                    <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Tags:</h3>
-                    <div class="flex flex-wrap gap-2">
-                        <span
+                    <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-4" :class="{ 'text-right': isRTL }">
+                        {{ getTranslation('article.tags_title') }}
+                    </h3>
+                    <div class="flex flex-wrap gap-2" :class="{ 'justify-end': isRTL }">
+                        <span v-for="tag in ['javascript', 'vue_js', 'web_development', 'tutorial']" :key="tag"
                             class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                            JavaScript
-                        </span>
-                        <span
-                            class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                            Vue.js
-                        </span>
-                        <span
-                            class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                            Web Development
-                        </span>
-                        <span
-                            class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                            Tutorial
+                            {{ getTranslation(`tags.${tag}`) }}
                         </span>
                     </div>
                 </div>
@@ -192,23 +353,23 @@ const truncate = (text: string, length: number = 100) => {
                 <!-- Author Bio -->
                 <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
                     <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8">
-                        <div class="flex items-start space-x-4">
+                        <div class="flex items-start" :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
                             <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face"
                                 alt="Author" class="w-16 h-16 rounded-full">
-                            <div class="flex-1">
-                                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Ahmed Khalil</h3>
+                            <div class="flex-1" :class="{ 'text-right': isRTL }">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                                    {{ getTranslation('article.author_default') }}
+                                </h3>
                                 <p class="text-gray-600 dark:text-gray-300 mb-4">
-                                    Senior Full-Stack Developer at Barmaja Academy with 8+ years of experience in modern
-                                    web
-                                    technologies.
-                                    Passionate about teaching and sharing knowledge with the developer community.
+                                    {{ getTranslation('author.bio_default') }}
                                 </p>
-                                <div class="flex items-center space-x-4">
+                                <div class="flex items-center"
+                                    :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
                                     <a href="#"
                                         class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium">
-                                        More articles by Ahmed
+                                        {{ getTranslation('author.more_articles') }}
                                     </a>
-                                    <div class="flex space-x-2">
+                                    <div class="flex" :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
                                         <a href="#" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                                             <i class="fab fa-twitter"></i>
                                         </a>
@@ -230,23 +391,31 @@ const truncate = (text: string, length: number = 100) => {
         <!-- Comments Section -->
         <section class="py-16 bg-gray-50 dark:bg-gray-800">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">Comments (12)</h3>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8" :class="{ 'text-right': isRTL }">
+                    {{ getTranslation('comments.title') }} (12)
+                </h3>
 
                 <!-- Comment Form -->
                 <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 mb-8">
-                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Leave a Comment</h4>
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
+                        :class="{ 'text-right': isRTL }">
+                        {{ getTranslation('comments.leave_comment') }}
+                    </h4>
                     <div class="space-y-4">
                         <div class="grid md:grid-cols-2 gap-4">
-                            <input type="text" placeholder="Your name"
-                                class="px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                            <input type="email" placeholder="Your email"
-                                class="px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                            <input type="text" :placeholder="getTranslation('comments.your_name')"
+                                class="px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                                :class="{ 'text-right': isRTL }">
+                            <input type="email" :placeholder="getTranslation('comments.your_email')"
+                                class="px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                                :class="{ 'text-right': isRTL }">
                         </div>
-                        <textarea rows="4" placeholder="Write your comment..."
-                            class="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"></textarea>
+                        <textarea rows="4" :placeholder="getTranslation('comments.write_comment')"
+                            class="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                            :class="{ 'text-right': isRTL }"></textarea>
                         <button
                             class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                            Post Comment
+                            {{ getTranslation('comments.post_comment') }}
                         </button>
                     </div>
                 </div>
@@ -255,21 +424,25 @@ const truncate = (text: string, length: number = 100) => {
                 <div class="space-y-6">
                     <!-- Comment 1 -->
                     <div class="bg-white dark:bg-gray-900 rounded-2xl p-6">
-                        <div class="flex items-start space-x-4">
+                        <div class="flex items-start" :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
                             <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
                                 alt="Commenter" class="w-10 h-10 rounded-full">
-                            <div class="flex-1">
-                                <div class="flex items-center space-x-2 mb-2">
-                                    <h5 class="font-semibold text-gray-900 dark:text-white">Sarah Johnson</h5>
-                                    <span class="text-sm text-gray-500 dark:text-gray-400">2 hours ago</span>
+                            <div class="flex-1" :class="{ 'text-right': isRTL }">
+                                <div class="flex items-center mb-2"
+                                    :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
+                                    <h5 class="font-semibold text-gray-900 dark:text-white">
+                                        {{ getTranslation('comments.sample_author_1') }}
+                                    </h5>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ timeAgo('2024-01-15T14:00:00Z') }}
+                                    </span>
                                 </div>
                                 <p class="text-gray-600 dark:text-gray-300">
-                                    Great article! This really helped me understand the concepts better.
-                                    The examples are clear and easy to follow.
+                                    {{ getTranslation('comments.sample_comment_1') }}
                                 </p>
                                 <button
                                     class="text-blue-600 dark:text-blue-400 text-sm font-medium mt-2 hover:text-blue-700 dark:hover:text-blue-300">
-                                    Reply
+                                    {{ getTranslation('comments.reply') }}
                                 </button>
                             </div>
                         </div>
@@ -277,21 +450,25 @@ const truncate = (text: string, length: number = 100) => {
 
                     <!-- Comment 2 -->
                     <div class="bg-white dark:bg-gray-900 rounded-2xl p-6">
-                        <div class="flex items-start space-x-4">
+                        <div class="flex items-start" :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
                             <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
                                 alt="Commenter" class="w-10 h-10 rounded-full">
-                            <div class="flex-1">
-                                <div class="flex items-center space-x-2 mb-2">
-                                    <h5 class="font-semibold text-gray-900 dark:text-white">Mike Chen</h5>
-                                    <span class="text-sm text-gray-500 dark:text-gray-400">5 hours ago</span>
+                            <div class="flex-1" :class="{ 'text-right': isRTL }">
+                                <div class="flex items-center mb-2"
+                                    :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
+                                    <h5 class="font-semibold text-gray-900 dark:text-white">
+                                        {{ getTranslation('comments.sample_author_2') }}
+                                    </h5>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ timeAgo('2024-01-15T11:00:00Z') }}
+                                    </span>
                                 </div>
                                 <p class="text-gray-600 dark:text-gray-300">
-                                    Thanks for sharing this knowledge! I've been struggling with this topic
-                                    and your explanation makes it much clearer.
+                                    {{ getTranslation('comments.sample_comment_2') }}
                                 </p>
                                 <button
                                     class="text-blue-600 dark:text-blue-400 text-sm font-medium mt-2 hover:text-blue-700 dark:hover:text-blue-300">
-                                    Reply
+                                    {{ getTranslation('comments.reply') }}
                                 </button>
                             </div>
                         </div>
@@ -303,7 +480,9 @@ const truncate = (text: string, length: number = 100) => {
         <!-- Related Articles -->
         <section v-if="relatedBlogs?.length" class="py-16">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">Related Articles</h3>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8" :class="{ 'text-right': isRTL }">
+                    {{ getTranslation('related.title') }}
+                </h3>
 
                 <div class="grid md:grid-cols-2 gap-8">
                     <article v-for="related in relatedBlogs" :key="related.id" class="group">
@@ -312,20 +491,22 @@ const truncate = (text: string, length: number = 100) => {
                             alt="Related article"
                             class="w-full h-40 object-cover rounded-2xl mb-4 group-hover:opacity-90 transition-opacity">
                         </Link>
-                        <h4
-                            class="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                            :class="{ 'text-right': isRTL }">
                             <Link :href="`/blog/${related.slug}`">
-                            {{ related.title_en }}
+                            {{ getLocalizedContent(related, 'title') }}
                             </Link>
                         </h4>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-3">
-                            {{ truncate(related.content_en, 120) }}
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-3" :class="{ 'text-right': isRTL }">
+                            {{ truncate(getLocalizedContent(related, 'content'), 120) }}
                         </p>
-                        <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400"
+                            :class="{ 'flex-row-reverse': isRTL }">
                             <span>{{ formatDate(related.published_at || related.created_at) }}</span>
                             <Link :href="`/blog/${related.slug}`"
                                 class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
-                            Read more →
+                            <span v-if="isRTL">← {{ getTranslation('related.read_more') }}</span>
+                            <span v-else>{{ getTranslation('related.read_more') }} →</span>
                             </Link>
                         </div>
                     </article>
@@ -338,36 +519,43 @@ const truncate = (text: string, length: number = 100) => {
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div class="text-center">
                     <div class="flex items-center justify-center mb-4">
-                        <div
-                            class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-2">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"
+                            :class="isRTL ? 'ml-2' : 'mr-2'">
                             <i class="fas fa-graduation-cap text-white text-sm"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Barmaja Academy</h3>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                            {{ getTranslation('footer.title') }}
+                        </h3>
                     </div>
                     <p class="text-gray-600 dark:text-gray-300 mb-6">
-                        Empowering developers with knowledge and insights
+                        {{ getTranslation('footer.description') }}
                     </p>
-                    <div class="flex justify-center space-x-6">
+                    <div class="flex justify-center" :class="isRTL ? 'space-x-reverse space-x-6' : 'space-x-6'">
                         <Link href="/"
                             class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        Home</Link>
+                        {{ getTranslation('footer.links.home') }}
+                        </Link>
                         <Link href="/courses"
                             class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        Courses</Link>
+                        {{ getTranslation('footer.links.courses') }}
+                        </Link>
                         <Link href="/blog"
                             class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        Blog</Link>
+                        {{ getTranslation('footer.links.blog') }}
+                        </Link>
                         <Link href="/about"
                             class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        About</Link>
+                        {{ getTranslation('footer.links.about') }}
+                        </Link>
                         <Link href="/contact"
                             class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        Contact</Link>
+                        {{ getTranslation('footer.links.contact') }}
+                        </Link>
                     </div>
                 </div>
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-8 mt-8 text-center">
                     <p class="text-gray-500 dark:text-gray-400 text-sm">
-                        © 2024 Barmaja Academy. All rights reserved.
+                        {{ getTranslation('footer.copyright') }}
                     </p>
                 </div>
             </div>
@@ -376,6 +564,12 @@ const truncate = (text: string, length: number = 100) => {
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700&display=swap');
+
+.font-tajawal {
+    font-family: 'Tajawal', sans-serif;
+}
+
 /* Custom styles for better typography */
 .prose {
     color: inherit;
@@ -408,6 +602,12 @@ const truncate = (text: string, length: number = 100) => {
     padding-left: 1.5rem;
 }
 
+[dir="rtl"] .prose ul,
+[dir="rtl"] .prose ol {
+    padding-right: 1.5rem;
+    padding-left: 0;
+}
+
 .prose li {
     margin-bottom: 0.5rem;
 }
@@ -420,6 +620,13 @@ const truncate = (text: string, length: number = 100) => {
     color: #6b7280;
 }
 
+[dir="rtl"] .prose blockquote {
+    border-right: 4px solid #3b82f6;
+    border-left: none;
+    padding-right: 1rem;
+    padding-left: 0;
+}
+
 .prose code {
     background-color: #f3f4f6;
     padding: 0.2rem 0.4rem;
@@ -429,5 +636,25 @@ const truncate = (text: string, length: number = 100) => {
 
 .dark .prose code {
     background-color: #374151;
+}
+
+/* RTL specific hover effects */
+[dir="rtl"] .hover\:translate-x-1:hover {
+    transform: translateX(-0.25rem);
+}
+
+[dir="rtl"] .hover\:-translate-x-1:hover {
+    transform: translateX(-0.25rem);
+}
+
+/* Smooth transitions */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
 }
 </style>

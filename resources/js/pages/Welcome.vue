@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import Navbar from '@/components/Navbar.vue';
 
-// Get page props
 const page = usePage();
 
-// Props that come from your Laravel backend
 defineProps<{
     auth?: {
         user?: any;
     };
-    translations?: any; // Translation object from Laravel (optional)
+    translations?: any;
     threeCourses?: Array<{
         id: number;
         title_ar: string;
@@ -40,116 +38,112 @@ defineProps<{
     }>;
 }>();
 
-// Get current locale from middleware
-const currentLocale = computed(() => {
-    return page.props.locale?.current || 'en';
-});
+// Get current locale
+const currentLocale = computed(() => page.props.locale?.current || 'en');
+const isRTL = computed(() => currentLocale.value === 'ar');
 
-// Get translations from props (from controller)
-const translations = computed(() => {
-    return page.props.translations?.home || {};
-});
+// Get translations from props with fallbacks
+const translations = computed(() => page.props.translations?.home || {});
 
-// Fallback translations
+// Comprehensive fallback translations
 const fallbackTranslations = {
     hero: {
-        title: 'Master',
-        subtitle: 'Programming',
-        description: 'Join Barmaja Academy and learn programming from industry experts.',
-        explore_courses: 'Explore Courses',
-        watch_demo: 'Watch Demo',
+        title: isRTL.value ? 'إتقان' : 'Master',
+        subtitle: isRTL.value ? 'البرمجة' : 'Programming',
+        description: isRTL.value
+            ? 'انضم إلى أكاديمية برمجة وتعلم البرمجة من خبراء الصناعة. ابدأ رحلتك في عالم التكنولوجيا اليوم.'
+            : 'Join Barmaja Academy and learn programming from industry experts. Start your journey in the world of technology today.',
+        explore_courses: isRTL.value ? 'استكشف الدورات' : 'Explore Courses',
+        watch_demo: isRTL.value ? 'شاهد العرض التوضيحي' : 'Watch Demo',
         stats: {
-            students: 'Students',
-            courses: 'Courses',
-            instructors: 'Instructors'
+            students: isRTL.value ? 'طالب' : 'Students',
+            courses: isRTL.value ? 'دورة' : 'Courses',
+            instructors: isRTL.value ? 'مدرس' : 'Instructors'
         }
     },
     featured_courses: {
-        title: 'Featured Courses',
-        subtitle: 'Discover our most popular courses',
-        bestseller: 'Bestseller',
-        preview_available: 'Preview Available',
-        enroll_now: 'Enroll Now',
-        view_all: 'View All Courses',
-        hours: 'hours',
-        students: 'students'
+        title: isRTL.value ? 'الدورات المميزة' : 'Featured Courses',
+        subtitle: isRTL.value ? 'اكتشف أشهر دوراتنا المقدمة من خبراء الصناعة' : 'Discover our most popular courses taught by industry experts',
+        bestseller: isRTL.value ? 'الأكثر مبيعاً' : 'Bestseller',
+        preview_available: isRTL.value ? 'معاينة متاحة' : 'Preview Available',
+        enroll_now: isRTL.value ? 'اشترك الآن' : 'Enroll Now',
+        view_all: isRTL.value ? 'عرض جميع الدورات' : 'View All Courses',
+        hours: isRTL.value ? 'ساعة' : 'hours',
+        students: isRTL.value ? 'طالب' : 'students'
     },
     features: {
-        title: 'Why Choose Barmaja Academy?',
-        subtitle: 'We provide everything you need to master programming',
+        title: isRTL.value ? 'لماذا تختار أكاديمية برمجة؟' : 'Why Choose Barmaja Academy?',
+        subtitle: isRTL.value ? 'نوفر لك كل ما تحتاجه لإتقان البرمجة والتقدم في مسيرتك المهنية' : 'We provide everything you need to master programming and advance your career',
         items: {
             videos: {
-                title: 'High-Quality Videos',
-                description: 'Learn with crystal-clear HD videos.'
+                title: isRTL.value ? 'فيديوهات عالية الجودة' : 'High-Quality Videos',
+                description: isRTL.value ? 'تعلم مع فيديوهات واضحة بدقة عالية ووصول مدى الحياة.' : 'Learn with crystal-clear HD videos and lifetime access.'
             },
             instructors: {
-                title: 'Expert Instructors',
-                description: 'Learn from industry professionals.'
+                title: isRTL.value ? 'مدرسون خبراء' : 'Expert Instructors',
+                description: isRTL.value ? 'تعلم من المحترفين في الصناعة مع سنوات من الخبرة العملية.' : 'Learn from industry professionals with years of real-world experience.'
             },
             certificates: {
-                title: 'Certificates',
-                description: 'Earn recognized certificates upon completion.'
+                title: isRTL.value ? 'شهادات معترف بها' : 'Recognized Certificates',
+                description: isRTL.value ? 'احصل على شهادات معترف بها عند الانتهاء لإظهار مهاراتك.' : 'Earn recognized certificates upon completion to showcase your skills.'
             },
             labs: {
-                title: 'Code Practice Labs',
-                description: 'Practice coding with interactive labs.'
+                title: isRTL.value ? 'مختبرات تطبيقية' : 'Hands-on Labs',
+                description: isRTL.value ? 'تدرب على البرمجة مع مختبراتنا التفاعلية ومشاريع حقيقية.' : 'Practice coding with our interactive labs and real projects.'
             },
             support: {
-                title: '24/7 Support',
-                description: 'Get help whenever you need it.'
+                title: isRTL.value ? 'دعم ٢٤/٧' : '24/7 Support',
+                description: isRTL.value ? 'احصل على المساعدة وقتما تحتاجها من فريق الدعم المخصص.' : 'Get help whenever you need it from our dedicated support team.'
             },
             mobile: {
-                title: 'Mobile Learning',
-                description: 'Learn on the go with our mobile platform.'
+                title: isRTL.value ? 'التعلم المحمول' : 'Mobile Learning',
+                description: isRTL.value ? 'تعلم أثناء التنقل مع منصتنا المحسنة للهواتف.' : 'Learn on the go with our mobile-optimized platform.'
             }
         }
     },
     blog: {
-        title: 'Latest from Our Blog',
-        subtitle: 'Stay updated with the latest trends',
-        tech_trends: 'Tech Trends',
-        read_more: 'Read More',
-        view_all: 'View All Posts'
+        title: isRTL.value ? 'آخر مقالات مدونتنا' : 'Latest from Our Blog',
+        subtitle: isRTL.value ? 'ابق على اطلاع على أحدث الاتجاهات والنصائح في عالم التكنولوجيا' : 'Stay updated with the latest trends and insights from the tech world',
+        tech_trends: isRTL.value ? 'اتجاهات التكنولوجيا' : 'Tech Trends',
+        read_more: isRTL.value ? 'اقرأ المزيد' : 'Read More',
+        view_all: isRTL.value ? 'عرض جميع المقالات' : 'View All Posts'
     },
     cta: {
-        title: 'Ready to Start Your Programming Journey?',
-        subtitle: 'Join thousands of students building amazing applications.',
-        browse_courses: 'Browse Courses',
-        sign_up_free: 'Sign Up Free'
+        title: isRTL.value ? 'هل أنت مستعد لبدء رحلتك في البرمجة؟' : 'Ready to Start Your Programming Journey?',
+        subtitle: isRTL.value ? 'انضم إلى آلاف الطلاب في أكاديمية برمجة الذين يبنون تطبيقات مذهلة' : 'Join thousands of students building amazing applications at Barmaja Academy',
+        browse_courses: isRTL.value ? 'تصفح الدورات' : 'Browse Courses',
+        sign_up_free: isRTL.value ? 'سجل مجاناً' : 'Sign Up Free'
     },
     footer: {
-        description: 'Empowering aspiring programmers with comprehensive courses.',
-        quick_links: 'Quick Links',
-        categories: 'Categories',
-        support: 'Support',
-        copyright: '© 2024 Barmaja Academy. All rights reserved.',
+        description: isRTL.value ? 'تمكين المبرمجين الطموحين بدورات شاملة ومشاريع عملية لبناء مسيرة مهنية ناجحة.' : 'Empowering aspiring programmers with comprehensive courses and hands-on projects.',
+        quick_links: isRTL.value ? 'روابط سريعة' : 'Quick Links',
+        categories: isRTL.value ? 'الفئات' : 'Categories',
+        support: isRTL.value ? 'الدعم' : 'Support',
+        copyright: isRTL.value ? '© ٢٠٢٤ أكاديمية برمجة. جميع الحقوق محفوظة.' : '© 2024 Barmaja Academy. All rights reserved.',
         links: {
-            courses: 'Courses',
-            blog: 'Blog',
-            about: 'About Us',
-            contact: 'Contact',
-            careers: 'Careers',
-            help_center: 'Help Center',
-            privacy_policy: 'Privacy Policy',
-            terms_of_service: 'Terms of Service',
-            refund_policy: 'Refund Policy',
-            student_support: 'Student Support',
-            privacy: 'Privacy',
-            terms: 'Terms',
-            cookies: 'Cookies'
+            courses: isRTL.value ? 'الدورات' : 'Courses',
+            blog: isRTL.value ? 'المدونة' : 'Blog',
+            about: isRTL.value ? 'من نحن' : 'About Us',
+            contact: isRTL.value ? 'اتصل بنا' : 'Contact',
+            careers: isRTL.value ? 'الوظائف' : 'Careers',
+            help_center: isRTL.value ? 'مركز المساعدة' : 'Help Center',
+            privacy_policy: isRTL.value ? 'سياسة الخصوصية' : 'Privacy Policy',
+            terms_of_service: isRTL.value ? 'شروط الخدمة' : 'Terms of Service',
+            privacy: isRTL.value ? 'الخصوصية' : 'Privacy',
+            terms: isRTL.value ? 'الشروط' : 'Terms'
         },
         categories_list: {
-            web_development: 'Web Development',
-            mobile_development: 'Mobile Development',
-            backend_development: 'Backend Development',
-            frontend_frameworks: 'Frontend Frameworks',
-            database_design: 'Database Design'
+            web_development: isRTL.value ? 'تطوير الويب' : 'Web Development',
+            mobile_development: isRTL.value ? 'تطوير تطبيقات الجوال' : 'Mobile Development',
+            backend_development: isRTL.value ? 'تطوير الخلفية' : 'Backend Development',
+            frontend_frameworks: isRTL.value ? 'إطارات العمل الأمامية' : 'Frontend Frameworks',
+            database_design: isRTL.value ? 'تصميم قواعد البيانات' : 'Database Design'
         }
     }
 };
 
 // Get translation with fallback
-const getTranslation = (path: string, fallback: string = '') => {
+function getTranslation(path: string, fallback: string = '') {
     const keys = path.split('.');
     let value = translations.value;
 
@@ -171,278 +165,327 @@ const getTranslation = (path: string, fallback: string = '') => {
     }
 
     return value || fallback;
-};
+}
 
 // Helper function to get localized content
-const getLocalizedContent = (item: any, field: string, locale: string) => {
-    return locale === 'ar' ? item[`${field}_ar`] : item[`${field}_en`];
-};
+function getLocalizedContent(item: any, field: string) {
+    return isRTL.value ? item[`${field}_ar`] : item[`${field}_en`];
+}
+
+// Animation states
+const heroVisible = ref(false);
+
+onMounted(() => {
+    setTimeout(() => heroVisible.value = true, 100);
+});
 </script>
 
 <template>
 
-    <Head :title="`${translations.hero.title} - Barmaja Academy`">
+    <Head :title="`${getTranslation('hero.title')} ${getTranslation('hero.subtitle')} - Barmaja Academy`">
         <link rel="preconnect" href="https://rsms.me/" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700&display=swap"
             rel="stylesheet">
+        <meta name="description" :content="getTranslation('hero.description')" />
     </Head>
 
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300"
-        :dir="locale === 'ar' ? 'rtl' : 'ltr'">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-all duration-500"
+        :dir="isRTL ? 'rtl' : 'ltr'" :class="{ 'font-tajawal': isRTL }">
+
         <!-- Navigation -->
         <Navbar />
 
         <!-- Hero Section -->
-        <section
-            class="relative bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 py-20 lg:py-32">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid lg:grid-cols-2 gap-12 items-center">
-                    <!-- Left Column -->
-                    <div class="text-center lg:text-left">
-                        <h1 class="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                            {{ translations.hero.title }}
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                                {{ translations.hero.subtitle }}
-                            </span>
-                        </h1>
-                        <p class="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-                            {{ translations.hero.description }}
-                        </p>
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                            <Link href="/courses"
-                                class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
-                            {{ translations.hero.explore_courses }}
-                            </Link>
-                            <button
-                                class="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-600 dark:hover:border-blue-400 px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 hover:text-blue-600 dark:hover:text-blue-400">
-                                <i class="fas fa-play mr-2"></i>
-                                {{ translations.hero.watch_demo }}
-                            </button>
-                        </div>
+        <section class="relative overflow-hidden">
+            <!-- Background Elements -->
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20">
+            </div>
+            <div class="absolute -top-40 w-80 h-80 bg-blue-500/10 dark:bg-blue-400/5 rounded-full blur-3xl"
+                :class="isRTL ? '-left-40' : '-right-40'"></div>
+            <div class="absolute -bottom-40 w-80 h-80 bg-purple-500/10 dark:bg-purple-400/5 rounded-full blur-3xl"
+                :class="isRTL ? '-right-40' : '-left-40'"></div>
+
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+                <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                    <!-- Content -->
+                    <div class="text-center lg:text-start" :class="{ 'lg:text-end': isRTL }">
+                        <Transition appear enter-active-class="transition duration-1000 ease-out"
+                            enter-from-class="transform translate-y-8 opacity-0"
+                            enter-to-class="transform translate-y-0 opacity-100">
+                            <div v-if="heroVisible">
+                                <h1
+                                    class="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                                    {{ getTranslation('hero.title') }}
+                                    <span
+                                        class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600">
+                                        {{ getTranslation('hero.subtitle') }}
+                                    </span>
+                                </h1>
+                                <p class="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed max-w-2xl"
+                                    :class="isRTL ? 'lg:mr-auto' : 'lg:ml-0'">
+                                    {{ getTranslation('hero.description') }}
+                                </p>
+                            </div>
+                        </Transition>
+
+                        <Transition appear enter-active-class="transition duration-1000 ease-out delay-300"
+                            enter-from-class="transform translate-y-8 opacity-0"
+                            enter-to-class="transform translate-y-0 opacity-100">
+                            <div v-if="heroVisible"
+                                class="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start mb-12"
+                                :class="{ 'lg:justify-end': isRTL }">
+                                <Link href="/courses/list"
+                                    class="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-2xl text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                                <span class="relative z-10">{{ getTranslation('hero.explore_courses') }}</span>
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                </div>
+                                </Link>
+                                <button
+                                    class="group px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-600 dark:hover:border-blue-400 rounded-2xl text-lg font-semibold transition-all duration-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                    <i class="fas fa-play" :class="isRTL ? 'ml-2' : 'mr-2'"></i>
+                                    {{ getTranslation('hero.watch_demo') }}
+                                </button>
+                            </div>
+                        </Transition>
 
                         <!-- Stats -->
-                        <div class="grid grid-cols-3 gap-8 mt-12 pt-12 border-t border-gray-200 dark:border-gray-700">
-                            <div class="text-center">
-                                <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">10K+</div>
-                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{
-                                    translations.hero.stats.students }}</div>
+                        <Transition appear enter-active-class="transition duration-1000 ease-out delay-500"
+                            enter-from-class="transform translate-y-8 opacity-0"
+                            enter-to-class="transform translate-y-0 opacity-100">
+                            <div v-if="heroVisible"
+                                class="grid grid-cols-3 gap-8 pt-12 border-t border-gray-200/50 dark:border-gray-700/50">
+                                <div class="text-center group">
+                                    <div
+                                        class="text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 group-hover:scale-110 transition-transform duration-300">
+                                        10K+</div>
+                                    <div class="text-sm lg:text-base text-gray-600 dark:text-gray-400 mt-2 font-medium">
+                                        {{ getTranslation('hero.stats.students') }}
+                                    </div>
+                                </div>
+                                <div class="text-center group">
+                                    <div
+                                        class="text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 group-hover:scale-110 transition-transform duration-300">
+                                        100+</div>
+                                    <div class="text-sm lg:text-base text-gray-600 dark:text-gray-400 mt-2 font-medium">
+                                        {{ getTranslation('hero.stats.courses') }}
+                                    </div>
+                                </div>
+                                <div class="text-center group">
+                                    <div
+                                        class="text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600 group-hover:scale-110 transition-transform duration-300">
+                                        50+</div>
+                                    <div class="text-sm lg:text-base text-gray-600 dark:text-gray-400 mt-2 font-medium">
+                                        {{ getTranslation('hero.stats.instructors') }}
+                                    </div>
+                                </div>
                             </div>
-                            <div class="text-center">
-                                <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">100+</div>
-                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{
-                                    translations.hero.stats.courses }}</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-3xl font-bold text-green-600 dark:text-green-400">50+</div>
-                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{
-                                    translations.hero.stats.instructors }}</div>
-                            </div>
-                        </div>
+                        </Transition>
                     </div>
 
-                    <!-- Right Column - Hero Image/Animation -->
-                    <div class="relative">
-                        <div
-                            class="relative bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-2xl">
-                                <div class="flex items-center mb-4">
-                                    <div
-                                        class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-4">
-                                        <i class="fas fa-code text-blue-600 dark:text-blue-400 text-xl"></i>
+                    <!-- Hero Illustration -->
+                    <div class="relative lg:h-96">
+                        <Transition appear enter-active-class="transition duration-1000 ease-out delay-200"
+                            enter-from-class="transform opacity-0"
+                            :enter-from-style="{ transform: isRTL ? 'translateX(-2rem)' : 'translateX(2rem)' }"
+                            enter-to-class="transform translate-x-0 opacity-100">
+                            <div v-if="heroVisible" class="relative">
+                                <!-- Main Card -->
+                                <div
+                                    class="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl transform rotate-2 hover:rotate-0 transition-all duration-500 border border-white/20 dark:border-gray-700/20">
+                                    <div class="flex items-center mb-6" :class="{ 'flex-row-reverse': isRTL }">
+                                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg"
+                                            :class="isRTL ? 'ml-4' : 'mr-4'">
+                                            <i class="fas fa-code text-white text-2xl"></i>
+                                        </div>
+                                        <div :class="{ 'text-right': isRTL }">
+                                            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                                                {{ isRTL ? 'دورة جافاسكريبت الشاملة' : 'Complete JavaScript Course' }}
+                                            </h3>
+                                            <p class="text-gray-600 dark:text-gray-400">
+                                                {{ isRTL ? 'من المبتدئ إلى الاحتراف' : 'From beginner to professional'
+                                                }}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 class="font-semibold text-gray-900 dark:text-white">Complete JavaScript
-                                            Course</h3>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400">From beginner to
-                                            professional</p>
-                                    </div>
-                                </div>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-600 dark:text-gray-400">Progress</span>
-                                        <span class="text-sm font-semibold text-blue-600 dark:text-blue-400">75%</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                        <div class="bg-blue-600 h-2 rounded-full w-3/4"></div>
-                                    </div>
-                                    <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                                        <span>12 of 16 lessons</span>
-                                        <span>4h 30m left</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Floating elements -->
-                        <div
-                            class="absolute -top-4 -left-4 w-20 h-20 bg-yellow-400 rounded-full opacity-20 animate-pulse">
-                        </div>
-                        <div
-                            class="absolute -bottom-4 -right-4 w-16 h-16 bg-pink-400 rounded-full opacity-20 animate-pulse delay-1000">
-                        </div>
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 dark:text-gray-400">
+                                                {{ isRTL ? 'التقدم' : 'Progress' }}
+                                            </span>
+                                            <span
+                                                class="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">75%</span>
+                                        </div>
+                                        <div
+                                            class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                                            <div
+                                                class="bg-gradient-to-r from-blue-600 to-purple-600 h-full rounded-full w-3/4 transition-all duration-1000 ease-out">
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+                                            <span>{{ isRTL ? '١٢ من ١٦ درس' : '12 of 16 lessons' }}</span>
+                                            <span>{{ isRTL ? '٤ ساعات و٣٠ دقيقة متبقية' : '4h 30m left' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Floating Elements -->
+                                <div class="absolute -top-6 w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full opacity-20 animate-pulse"
+                                    :class="isRTL ? '-right-6' : '-left-6'"></div>
+                                <div class="absolute -bottom-6 w-20 h-20 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full opacity-20 animate-pulse"
+                                    :class="isRTL ? '-left-6' : '-right-6'" style="animation-delay: 1s;"></div>
+                                <div class="absolute top-1/2 w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full opacity-20 animate-pulse"
+                                    :class="isRTL ? '-left-8' : '-right-8'" style="animation-delay: 2s;"></div>
+                            </div>
+                        </Transition>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Featured Courses Section -->
-        <section class="py-20 bg-white dark:bg-gray-800">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section class="py-20 lg:py-32 bg-white dark:bg-gray-800 relative overflow-hidden">
+            <div
+                class="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/10 dark:to-purple-900/10">
+            </div>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16">
-                    <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        {{ translations.featured_courses.title }}
+                    <h2 class="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                        {{ getTranslation('featured_courses.title') }}
                     </h2>
-                    <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                        {{ translations.featured_courses.subtitle }}
+                    <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                        {{ getTranslation('featured_courses.subtitle') }}
                     </p>
                 </div>
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Course Card -->
-                    <div v-for="course in threeCourses" :key="course.id"
-                        class="bg-gray-50 dark:bg-gray-700 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                        <div class="relative">
-                            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop"
-                                alt="Course" class="w-full h-48 object-cover">
-                            <div
-                                class="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                {{ translations.featured_courses.bestseller }}
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+                    <div v-for="(course, index) in threeCourses" :key="course.id"
+                        class="group bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-gray-100 dark:border-gray-800">
+
+                        <div class="relative overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&h=300&fit=crop"
+                                alt="Course"
+                                class="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+
+                            <!-- Badges -->
+                            <div class="absolute top-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg"
+                                :class="isRTL ? 'left-4' : 'right-4'">
+                                {{ getTranslation('featured_courses.bestseller') }}
                             </div>
-                            <div
-                                class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-lg text-sm">
-                                <i class="fas fa-play mr-1"></i>
-                                {{ translations.featured_courses.preview_available }}
+                            <div class="absolute bottom-4 bg-black/70 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium"
+                                :class="isRTL ? 'right-4' : 'left-4'">
+                                <i class="fas fa-play" :class="isRTL ? 'ml-2' : 'mr-2'"></i>
+                                {{ getTranslation('featured_courses.preview_available') }}
                             </div>
                         </div>
-                        <div class="p-6">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm text-blue-600 dark:text-blue-400 font-medium">
+
+                        <div class="p-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <span
+                                    class="text-sm text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">
                                     {{ course.slug }}
                                 </span>
                                 <div class="flex items-center text-yellow-400">
-                                    <i class="fas fa-star text-sm"></i>
-                                    <span class="text-sm text-gray-600 dark:text-gray-400 ml-1">4.9</span>
+                                    <i class="fas fa-star"></i>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400 font-medium"
+                                        :class="isRTL ? 'mr-2' : 'ml-2'">4.9</span>
                                 </div>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                                {{ getLocalizedContent(course, 'title', locale) }}
+
+                            <h3 class="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-4 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                                :class="{ 'text-right': isRTL }">
+                                {{ getLocalizedContent(course, 'title') }}
                             </h3>
-                            <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
-                                {{ getLocalizedContent(course, 'description', locale) }}
+
+                            <p class="text-gray-600 dark:text-gray-300 mb-6 line-clamp-3 leading-relaxed"
+                                :class="{ 'text-right': isRTL }">
+                                {{ getLocalizedContent(course, 'description') }}
                             </p>
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                                    <i class="fas fa-clock mr-1"></i>
-                                    <span>24 {{ translations.featured_courses.hours }}</span>
-                                </div>
-                                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                                    <i class="fas fa-users mr-1"></i>
-                                    <span>1,234 {{ translations.featured_courses.students }}</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="text-right">
-                                    <div class="text-2xl font-bold text-gray-900 dark:text-white">${{ course.price }}
+
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center text-gray-600 dark:text-gray-400"
+                                    :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock" :class="isRTL ? 'ml-2' : 'mr-2'"></i>
+                                        <span class="text-sm font-medium">24 {{ getTranslation('featured_courses.hours')
+                                            }}</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-users" :class="isRTL ? 'ml-2' : 'mr-2'"></i>
+                                        <span class="text-sm font-medium">1,234 {{
+                                            getTranslation('featured_courses.students') }}</span>
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="text-3xl font-bold text-gray-900 dark:text-white">
+                                    ${{ course.price }}
+                                </div>
+                            </div>
+
                             <button
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold mt-4 transition-colors">
-                                {{ translations.featured_courses.enroll_now }}
+                                class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                                {{ getTranslation('featured_courses.enroll_now') }}
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="text-center mt-12">
-                    <Link href="/courses"
-                        class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold">
-                    {{ translations.featured_courses.view_all }}
-                    <i class="fas fa-arrow-right ml-2"
-                        :class="{ 'ml-2': locale === 'en', 'mr-2': locale === 'ar' }"></i>
+                <div class="text-center mt-16">
+                    <Link href="/courses/list"
+                        class="inline-flex items-center px-8 py-4 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-bold text-lg bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-2xl transition-all duration-300"
+                        :class="isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'">
+                    <span>{{ getTranslation('featured_courses.view_all') }}</span>
+                    <i class="fas fa-arrow-right" :class="{ 'fas fa-arrow-left': isRTL }"></i>
                     </Link>
                 </div>
             </div>
         </section>
 
         <!-- Features Section -->
-        <section class="py-20 bg-gray-50 dark:bg-gray-900">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section class="py-20 lg:py-32 bg-gray-50 dark:bg-gray-900 relative overflow-hidden">
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16">
-                    <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        {{ translations.features.title }}
+                    <h2 class="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                        {{ getTranslation('features.title') }}
                     </h2>
-                    <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                        {{ translations.features.subtitle }}
+                    <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                        {{ getTranslation('features.subtitle') }}
                     </p>
                 </div>
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
                     <!-- Feature Cards -->
-                    <div class="text-center group">
-                        <div
-                            class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-video text-blue-600 dark:text-blue-400 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{
-                            translations.features.items.videos.title }}</h3>
-                        <p class="text-gray-600 dark:text-gray-300">{{ translations.features.items.videos.description }}
-                        </p>
-                    </div>
+                    <div v-for="(feature, index) in [
+                        { key: 'videos', icon: 'fas fa-video', gradient: 'from-blue-500 to-blue-600' },
+                        { key: 'instructors', icon: 'fas fa-users', gradient: 'from-purple-500 to-purple-600' },
+                        { key: 'certificates', icon: 'fas fa-certificate', gradient: 'from-green-500 to-green-600' },
+                        { key: 'labs', icon: 'fas fa-laptop-code', gradient: 'from-yellow-500 to-yellow-600' },
+                        { key: 'support', icon: 'fas fa-headset', gradient: 'from-red-500 to-red-600' },
+                        { key: 'mobile', icon: 'fas fa-mobile-alt', gradient: 'from-indigo-500 to-indigo-600' }
+                    ]" :key="feature.key"
+                        class="group p-8 bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 text-center border border-gray-100 dark:border-gray-700"
+                        :class="{ 'text-right': isRTL }">
 
-                    <div class="text-center group">
-                        <div
-                            class="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-users text-purple-600 dark:text-purple-400 text-2xl"></i>
+                        <div class="relative mb-8">
+                            <div class="w-20 h-20 mx-auto bg-gradient-to-r rounded-3xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-all duration-300"
+                                :class="feature.gradient">
+                                <i :class="feature.icon" class="text-white text-3xl"></i>
+                            </div>
+                            <div class="absolute inset-0 w-20 h-20 mx-auto rounded-3xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"
+                                :class="`bg-gradient-to-r ${feature.gradient}`"></div>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{
-                            translations.features.items.instructors.title }}</h3>
-                        <p class="text-gray-600 dark:text-gray-300">{{
-                            translations.features.items.instructors.description }}</p>
-                    </div>
 
-                    <div class="text-center group">
-                        <div
-                            class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-certificate text-green-600 dark:text-green-400 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{
-                            translations.features.items.certificates.title }}</h3>
-                        <p class="text-gray-600 dark:text-gray-300">{{
-                            translations.features.items.certificates.description }}</p>
-                    </div>
-
-                    <div class="text-center group">
-                        <div
-                            class="w-16 h-16 bg-yellow-100 dark:bg-yellow-900 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-laptop-code text-yellow-600 dark:text-yellow-400 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{
-                            translations.features.items.labs.title }}</h3>
-                        <p class="text-gray-600 dark:text-gray-300">{{ translations.features.items.labs.description }}
-                        </p>
-                    </div>
-
-                    <div class="text-center group">
-                        <div
-                            class="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-headset text-red-600 dark:text-red-400 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{
-                            translations.features.items.support.title }}</h3>
-                        <p class="text-gray-600 dark:text-gray-300">{{ translations.features.items.support.description
-                            }}</p>
-                    </div>
-
-                    <div class="text-center group">
-                        <div
-                            class="w-16 h-16 bg-indigo-100 dark:bg-indigo-900 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-mobile-alt text-indigo-600 dark:text-indigo-400 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{
-                            translations.features.items.mobile.title }}</h3>
-                        <p class="text-gray-600 dark:text-gray-300">{{ translations.features.items.mobile.description }}
+                        <h3 class="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                            {{ getTranslation(`features.items.${feature.key}.title`) }}
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                            {{ getTranslation(`features.items.${feature.key}.description`) }}
                         </p>
                     </div>
                 </div>
@@ -450,137 +493,161 @@ const getLocalizedContent = (item: any, field: string, locale: string) => {
         </section>
 
         <!-- Blog Section -->
-        <section class="py-20 bg-white dark:bg-gray-800">
+        <section class="py-20 lg:py-32 bg-white dark:bg-gray-800">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16">
-                    <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        {{ translations.blog.title }}
+                    <h2 class="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                        {{ getTranslation('blog.title') }}
                     </h2>
-                    <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                        {{ translations.blog.subtitle }}
+                    <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                        {{ getTranslation('blog.subtitle') }}
                     </p>
                 </div>
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Blog Post -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
                     <article v-for="blog in threeBlogs" :key="blog.id"
-                        class="bg-gray-50 dark:bg-gray-700 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                        <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=250&fit=crop"
-                            alt="Blog post" class="w-full h-48 object-cover">
-                        <div class="p-6">
-                            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                <span>{{ translations.blog.tech_trends }}</span>
-                                <span class="mx-2">•</span>
-                                <span>Jan 15, 2024</span>
+                        class="group bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-gray-100 dark:border-gray-800">
+                        <div class="relative overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=500&h=300&fit=crop"
+                                alt="Blog post"
+                                class="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                        </div>
+
+                        <div class="p-8">
+                            <div class="flex items-center text-sm text-blue-600 dark:text-blue-400 font-medium mb-4"
+                                :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
+                                <span>{{ getTranslation('blog.tech_trends') }}</span>
+                                <span>•</span>
+                                <span>{{ isRTL ? '١٥ يناير ٢٠٢٤' : 'Jan 15, 2024' }}</span>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2">
-                                {{ getLocalizedContent(blog, 'title', locale) }}
+
+                            <h3 class="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-4 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                                :class="{ 'text-right': isRTL }">
+                                {{ getLocalizedContent(blog, 'title') }}
                             </h3>
-                            <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">
-                                {{ getLocalizedContent(blog, 'content', locale).substring(0, 150) }}...
+
+                            <p class="text-gray-600 dark:text-gray-300 mb-6 line-clamp-3 leading-relaxed"
+                                :class="{ 'text-right': isRTL }">
+                                {{ getLocalizedContent(blog, 'content').substring(0, 150) }}...
                             </p>
-                            <div class="flex items-center justify-between">
-                                <Link :href="`/blog/${blog.slug}`"
-                                    class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium">
-                                {{ translations.blog.read_more }} →
-                                </Link>
-                            </div>
+
+                            <Link :href="`/blogs/${blog.slug}`"
+                                class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-bold transition-colors"
+                                :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
+                            <span>{{ getTranslation('blog.read_more') }}</span>
+                            <i class="fas fa-arrow-right" :class="{ 'fas fa-arrow-left': isRTL }"></i>
+                            </Link>
                         </div>
                     </article>
                 </div>
 
-                <div class="text-center mt-12">
-                    <Link href="/blog"
-                        class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold">
-                    {{ translations.blog.view_all }}
-                    <i class="fas fa-arrow-right ml-2"
-                        :class="{ 'ml-2': locale === 'en', 'mr-2': locale === 'ar' }"></i>
+                <div class="text-center mt-16">
+                    <Link href="/blogs/list"
+                        class="inline-flex items-center px-8 py-4 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-bold text-lg bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-2xl transition-all duration-300"
+                        :class="isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'">
+                    <span>{{ getTranslation('blog.view_all') }}</span>
+                    <i class="fas fa-arrow-right" :class="{ 'fas fa-arrow-left': isRTL }"></i>
                     </Link>
                 </div>
             </div>
         </section>
 
         <!-- CTA Section -->
-        <section class="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="text-3xl lg:text-4xl font-bold text-white mb-6">
-                    {{ translations.cta.title }}
+        <section class="py-20 lg:py-32 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700"></div>
+            <div class="absolute inset-0 bg-black/10"></div>
+            <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-4xl lg:text-5xl font-bold text-white mb-8 leading-tight">
+                    {{ getTranslation('cta.title') }}
                 </h2>
-                <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                    {{ translations.cta.subtitle }}
+                <p class="text-xl lg:text-2xl text-blue-100 mb-12 max-w-3xl mx-auto leading-relaxed">
+                    {{ getTranslation('cta.subtitle') }}
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link href="/courses"
-                        class="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
-                    {{ translations.cta.browse_courses }}
+                <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                    <Link href="/courses/list"
+                        class="px-10 py-5 bg-white text-blue-600 hover:bg-gray-100 rounded-2xl text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                    {{ getTranslation('cta.browse_courses') }}
                     </Link>
                     <Link href="/register"
-                        class="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
-                    {{ translations.cta.sign_up_free }}
+                        class="px-10 py-5 border-2 border-white text-white hover:bg-white hover:text-blue-600 rounded-2xl text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                    {{ getTranslation('cta.sign_up_free') }}
                     </Link>
                 </div>
             </div>
         </section>
 
         <!-- Footer -->
-        <footer class="bg-gray-900 text-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <footer class="bg-gray-900 text-white relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black"></div>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
                     <!-- Company Info -->
-                    <div>
-                        <div class="flex items-center mb-6">
-                            <div
-                                class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                    <div class="lg:col-span-1">
+                        <div class="flex items-center mb-8" :class="{ 'flex-row-reverse': isRTL }">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg"
+                                :class="isRTL ? 'ml-4' : 'mr-4'">
                                 <i class="fas fa-graduation-cap text-white text-xl"></i>
                             </div>
-                            <h3 class="text-2xl font-bold">Barmaja Academy</h3>
+                            <h3 class="text-2xl font-bold">
+                                {{ isRTL ? 'أكاديمية برمجة' : 'Barmaja Academy' }}
+                            </h3>
                         </div>
-                        <p class="text-gray-400 mb-6">
-                            {{ translations.footer.description }}
+                        <p class="text-gray-400 mb-8 leading-relaxed" :class="{ 'text-right': isRTL }">
+                            {{ getTranslation('footer.description') }}
                         </p>
-                        <div class="flex space-x-4">
-                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                                <i class="fab fa-facebook text-xl"></i>
+                        <div class="flex space-x-6" :class="{ 'space-x-reverse': isRTL }">
+                            <a href="#"
+                                class="text-gray-400 hover:text-white transition-colors transform hover:scale-110">
+                                <i class="fab fa-facebook text-2xl"></i>
                             </a>
-                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                                <i class="fab fa-twitter text-xl"></i>
+                            <a href="#"
+                                class="text-gray-400 hover:text-white transition-colors transform hover:scale-110">
+                                <i class="fab fa-twitter text-2xl"></i>
                             </a>
-                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                                <i class="fab fa-linkedin text-xl"></i>
+                            <a href="#"
+                                class="text-gray-400 hover:text-white transition-colors transform hover:scale-110">
+                                <i class="fab fa-linkedin text-2xl"></i>
                             </a>
-                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                                <i class="fab fa-youtube text-xl"></i>
+                            <a href="#"
+                                class="text-gray-400 hover:text-white transition-colors transform hover:scale-110">
+                                <i class="fab fa-youtube text-2xl"></i>
                             </a>
                         </div>
                     </div>
 
                     <!-- Quick Links -->
                     <div>
-                        <h4 class="text-lg font-semibold mb-6">{{ translations.footer.quick_links }}</h4>
-                        <ul class="space-y-3">
+                        <h4 class="text-lg font-bold mb-8" :class="{ 'text-right': isRTL }">
+                            {{ getTranslation('footer.quick_links') }}
+                        </h4>
+                        <ul class="space-y-4">
                             <li>
-                                <Link href="/courses" class="text-gray-400 hover:text-white transition-colors">
-                                {{ translations.footer.links.courses }}
+                                <Link href="/courses/list"
+                                    class="text-gray-400 hover:text-white transition-colors hover:translate-x-1 inline-block"
+                                    :class="{ 'text-right': isRTL, 'hover:-translate-x-1': isRTL }">
+                                {{ getTranslation('footer.links.courses') }}
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/blog" class="text-gray-400 hover:text-white transition-colors">
-                                {{ translations.footer.links.blog }}
+                                <Link href="/blogs/list"
+                                    class="text-gray-400 hover:text-white transition-colors hover:translate-x-1 inline-block"
+                                    :class="{ 'text-right': isRTL, 'hover:-translate-x-1': isRTL }">
+                                {{ getTranslation('footer.links.blog') }}
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/about" class="text-gray-400 hover:text-white transition-colors">
-                                {{ translations.footer.links.about }}
+                                <Link href="/about"
+                                    class="text-gray-400 hover:text-white transition-colors hover:translate-x-1 inline-block"
+                                    :class="{ 'text-right': isRTL, 'hover:-translate-x-1': isRTL }">
+                                {{ getTranslation('footer.links.about') }}
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/contact" class="text-gray-400 hover:text-white transition-colors">
-                                {{ translations.footer.links.contact }}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/careers" class="text-gray-400 hover:text-white transition-colors">
-                                {{ translations.footer.links.careers }}
+                                <Link href="/contact-us"
+                                    class="text-gray-400 hover:text-white transition-colors hover:translate-x-1 inline-block"
+                                    :class="{ 'text-right': isRTL, 'hover:-translate-x-1': isRTL }">
+                                {{ getTranslation('footer.links.contact') }}
                                 </Link>
                             </li>
                         </ul>
@@ -588,51 +655,70 @@ const getLocalizedContent = (item: any, field: string, locale: string) => {
 
                     <!-- Categories -->
                     <div>
-                        <h4 class="text-lg font-semibold mb-6">{{ translations.footer.categories }}</h4>
-                        <ul class="space-y-3">
-                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">{{
-                                translations.footer.categories_list.web_development }}</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">{{
-                                translations.footer.categories_list.mobile_development }}</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">{{
-                                translations.footer.categories_list.backend_development }}</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">{{
-                                translations.footer.categories_list.frontend_frameworks }}</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">{{
-                                translations.footer.categories_list.database_design }}</a></li>
+                        <h4 class="text-lg font-bold mb-8" :class="{ 'text-right': isRTL }">
+                            {{ getTranslation('footer.categories') }}
+                        </h4>
+                        <ul class="space-y-4">
+                            <li><a href="#"
+                                    class="text-gray-400 hover:text-white transition-colors hover:translate-x-1 inline-block"
+                                    :class="{ 'text-right': isRTL, 'hover:-translate-x-1': isRTL }">
+                                    {{ getTranslation('footer.categories_list.web_development') }}
+                                </a></li>
+                            <li><a href="#"
+                                    class="text-gray-400 hover:text-white transition-colors hover:translate-x-1 inline-block"
+                                    :class="{ 'text-right': isRTL, 'hover:-translate-x-1': isRTL }">
+                                    {{ getTranslation('footer.categories_list.mobile_development') }}
+                                </a></li>
+                            <li><a href="#"
+                                    class="text-gray-400 hover:text-white transition-colors hover:translate-x-1 inline-block"
+                                    :class="{ 'text-right': isRTL, 'hover:-translate-x-1': isRTL }">
+                                    {{ getTranslation('footer.categories_list.backend_development') }}
+                                </a></li>
+                            <li><a href="#"
+                                    class="text-gray-400 hover:text-white transition-colors hover:translate-x-1 inline-block"
+                                    :class="{ 'text-right': isRTL, 'hover:-translate-x-1': isRTL }">
+                                    {{ getTranslation('footer.categories_list.frontend_frameworks') }}
+                                </a></li>
                         </ul>
                     </div>
 
                     <!-- Support -->
                     <div>
-                        <h4 class="text-lg font-semibold mb-6">{{ translations.footer.support }}</h4>
-                        <ul class="space-y-3">
-                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">{{
-                                translations.footer.links.help_center }}</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">{{
-                                translations.footer.links.privacy_policy }}</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">{{
-                                translations.footer.links.terms_of_service }}</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">{{
-                                translations.footer.links.refund_policy }}</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">{{
-                                translations.footer.links.student_support }}</a></li>
+                        <h4 class="text-lg font-bold mb-8" :class="{ 'text-right': isRTL }">
+                            {{ getTranslation('footer.support') }}
+                        </h4>
+                        <ul class="space-y-4">
+                            <li><a href="#"
+                                    class="text-gray-400 hover:text-white transition-colors hover:translate-x-1 inline-block"
+                                    :class="{ 'text-right': isRTL, 'hover:-translate-x-1': isRTL }">
+                                    {{ getTranslation('footer.links.help_center') }}
+                                </a></li>
+                            <li><a href="#"
+                                    class="text-gray-400 hover:text-white transition-colors hover:translate-x-1 inline-block"
+                                    :class="{ 'text-right': isRTL, 'hover:-translate-x-1': isRTL }">
+                                    {{ getTranslation('footer.links.privacy_policy') }}
+                                </a></li>
+                            <li><a href="#"
+                                    class="text-gray-400 hover:text-white transition-colors hover:translate-x-1 inline-block"
+                                    :class="{ 'text-right': isRTL, 'hover:-translate-x-1': isRTL }">
+                                    {{ getTranslation('footer.links.terms_of_service') }}
+                                </a></li>
                         </ul>
                     </div>
                 </div>
 
-                <div class="border-t border-gray-800 pt-8 mt-12">
-                    <div class="flex flex-col md:flex-row justify-between items-center">
-                        <p class="text-gray-400 text-sm">
-                            {{ translations.footer.copyright }}
+                <div class="border-t border-gray-800 pt-12 mt-16">
+                    <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                        <p class="text-gray-400" :class="{ 'text-right': isRTL }">
+                            {{ getTranslation('footer.copyright') }}
                         </p>
-                        <div class="flex items-center space-x-6 mt-4 md:mt-0">
-                            <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">{{
-                                translations.footer.links.privacy }}</a>
-                            <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">{{
-                                translations.footer.links.terms }}</a>
-                            <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">{{
-                                translations.footer.links.cookies }}</a>
+                        <div class="flex items-center space-x-8" :class="{ 'space-x-reverse': isRTL }">
+                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                {{ getTranslation('footer.links.privacy') }}
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                {{ getTranslation('footer.links.terms') }}
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -642,6 +728,12 @@ const getLocalizedContent = (item: any, field: string, locale: string) => {
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700&display=swap');
+
+.font-tajawal {
+    font-family: 'Tajawal', sans-serif;
+}
+
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -654,5 +746,42 @@ const getLocalizedContent = (item: any, field: string, locale: string) => {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+/* RTL specific hover effects */
+[dir="rtl"] .hover\:translate-x-1:hover {
+    transform: translateX(-0.25rem);
+}
+
+[dir="rtl"] .hover\:-translate-x-1:hover {
+    transform: translateX(-0.25rem);
+}
+
+/* Smooth transitions */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom animations */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
 }
 </style>

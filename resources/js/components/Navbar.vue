@@ -43,7 +43,6 @@ const navItems = computed(() => [
     { name: translations.value.home || (currentLocale.value === 'ar' ? 'الرئيسية' : 'Home'), href: '/' },
     { name: translations.value.courses || (currentLocale.value === 'ar' ? 'الدورات' : 'Courses'), href: '/courses/list' },
     { name: translations.value.blog || (currentLocale.value === 'ar' ? 'المدونة' : 'Blog'), href: '/blogs/list' },
-    { name: translations.value.contact || (currentLocale.value === 'ar' ? 'اتصل بنا' : 'Contact'), href: '/contact-us' },
 ]);
 
 // Helper function to get flag emoji
