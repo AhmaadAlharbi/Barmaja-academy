@@ -9,8 +9,12 @@ use App\Http\Controllers\CourseContentCommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CourseContentController;
 use App\Http\Controllers\CourseUserController;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
-Route::group(['prefix' => LaravelLocalization::setLocale()], function () {
+Route::group([
+    'prefix' => LaravelLocalization::setLocale(),
+    'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
+], function () {
     /** ADD ALL LOCALIZED ROUTES INSIDE THIS GROUP **/
 
     // Frontend Public Routes

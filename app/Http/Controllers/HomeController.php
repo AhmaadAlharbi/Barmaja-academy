@@ -11,28 +11,40 @@ use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
+    /**
+     * Helper method to get translations for pages
+     * Note: Locale data is already provided by HandleInertiaRequests middleware
+     */
+    private function getTranslationData($translationKey = 'home')
+    {
+        return [
+            'translations' => array_merge(
+                ['navbar' => trans('navbar')], // Always include navbar translations
+                [$translationKey => trans($translationKey)] // Page-specific translations
+            ),
+        ];
+    }
+
     public function index()
     {
         $threeCourses = Course::take(3)->get();
         $threeBlogs = BlogPost::take(3)->get();
-        return Inertia::render(
-            'Welcome',
-            [
-                'threeCourses' => $threeCourses,
-                'threeBlogs' => $threeBlogs,
-            ]
-        );
+
+        return Inertia::render('Welcome', array_merge([
+            'threeCourses' => $threeCourses,
+            'threeBlogs' => $threeBlogs,
+        ], $this->getTranslationData('home')));
     }
+
     public function showCourses()
     {
         $courses = Course::paginate(6);
-        return Inertia::render(
-            'Courses',
-            [
-                'courses' => $courses
-            ]
-        );
+
+        return Inertia::render('Courses', array_merge([
+            'courses' => $courses
+        ], $this->getTranslationData('courses')));
     }
+
     public function showCourse($id)
     {
         $course = Course::with(['contents', 'comments'])->findOrFail($id);
@@ -42,35 +54,35 @@ class HomeController extends Controller
             $isEnrolled = Auth::user()->courses()->where('course_id', $id)->exists();
         }
 
-        return Inertia::render('Course', [
+        return Inertia::render('Course', array_merge([
             'course' => $course,
             'isEnrolled' => $isEnrolled
-        ]);
+        ], $this->getTranslationData('course')));
     }
+
     public function showBlogs()
     {
         $blogs = BlogPost::paginate(6);
-        return Inertia::render(
-            'Blogs',
-            [
-                'blogs' => $blogs
-            ]
-        );
+
+        return Inertia::render('Blogs', array_merge([
+            'blogs' => $blogs
+        ], $this->getTranslationData('blog')));
     }
+
     public function showBlog($id)
     {
         $blog = BlogPost::findOrFail($id);
-        return Inertia::render(
-            'Blog',
-            [
-                'blog' => $blog
-            ]
-        );
+
+        return Inertia::render('Blog', array_merge([
+            'blog' => $blog
+        ], $this->getTranslationData('blog')));
     }
+
     public function contactUs()
     {
-        return Inertia::render('Contact-us');
+        return Inertia::render('Contact-us', $this->getTranslationData('contact'));
     }
+
     public function showContent($course_id, $content_id = null)
     {
         // Case 1: content_id is given → find content, then course
@@ -109,12 +121,12 @@ class HomeController extends Controller
             ];
         }
 
-        return Inertia::render('CourseContent', [
+        return Inertia::render('CourseContent', array_merge([
             'content' => $content,
             'course' => $course,
             'allLessons' => $allLessons,
             'progress' => $progress,
             'isEnrolled' => $isEnrolled,
-        ]);
+        ], $this->getTranslationData('course')));
     }
 }

@@ -53,6 +53,18 @@ class HandleInertiaRequests extends Middleware
                 ->toArray()
         ];
 
+        // Build localized navigation URLs
+        $navigation = [
+            'home' => LaravelLocalization::localizeURL('/'),
+            'courses' => LaravelLocalization::localizeURL('/courses/list'),
+            'blog' => LaravelLocalization::localizeURL('/blogs/list'),
+            'contact' => LaravelLocalization::localizeURL('/contact-us'),
+            'login' => LaravelLocalization::localizeURL('/login'),
+            'register' => LaravelLocalization::localizeURL('/register'),
+            'dashboard' => LaravelLocalization::localizeURL('/dashboard'),
+            'profile' => LaravelLocalization::localizeURL('/profile'),
+        ];
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -67,6 +79,8 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             // Updated structure to match Vue component expectations
             'locale' => $localeData,
+            // Add navigation URLs globally
+            'navigation' => $navigation,
         ];
     }
 }
