@@ -105,7 +105,7 @@ class CourseContentFactory extends Factory
             'title_en' => $lesson['title_en'],
             'content_ar' => $lesson['content_ar'],
             'content_en' => $lesson['content_en'],
-            'video_url' => $this->faker->optional(0.7)->randomElement($videoUrls),
+            'video_url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
             'sort_order' => $this->faker->numberBetween(1, 100),
             'is_active' => $this->faker->boolean(85), // 85% chance of being active
         ];
@@ -157,10 +157,8 @@ class CourseContentFactory extends Factory
     public function withVideo(): static
     {
         $videoUrls = [
-            'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-            'https://vimeo.com/123456789',
-            'https://www.youtube.com/watch?v=ScMzIvxBSi4',
-            'https://vimeo.com/987654321',
+            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
+'
         ];
 
         return $this->state(fn(array $attributes) => [

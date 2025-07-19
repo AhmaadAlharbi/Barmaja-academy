@@ -83,6 +83,52 @@ class HomeController extends Controller
         return Inertia::render('Contact-us', $this->getTranslationData('contact'));
     }
 
+    // public function showContent($course_id, $content_id = null)
+    // {
+    //     // Case 1: content_id is given → find content, then course
+    //     if ($content_id) {
+    //         $content = CourseContent::with(['comments.user'])->findOrFail($content_id);
+    //         $course = Course::findOrFail($content->course_id);
+    //     }
+    //     // Case 2: only course_id is given → get first content
+    //     else {
+    //         $course = Course::findOrFail($course_id);
+    //         $content = CourseContent::with(['comments.user'])
+    //             ->where('course_id', $course->id)
+    //             ->where('is_active', 1)
+    //             ->orderBy('sort_order')
+    //             ->firstOrFail();
+    //     }
+
+    //     // Check enrollment
+    //     $isEnrolled = false;
+    //     if (Auth::check()) {
+    //         $isEnrolled = Auth::user()->courses()->where('course_id', $course->id)->exists();
+    //     }
+
+    //     // Get all lessons
+    //     $allLessons = CourseContent::where('course_id', $course->id)
+    //         ->where('is_active', 1)
+    //         ->orderBy('sort_order')
+    //         ->select('id', 'title_en', 'title_ar', 'sort_order', 'is_active', 'video_url')
+    //         ->get();
+
+    //     // Calculate progress
+    //     $progress = null;
+    //     if (auth()->check()) {
+    //         $progress = [
+    //             'total_lessons' => $allLessons->count(),
+    //         ];
+    //     }
+
+    //     return Inertia::render('CourseContent', array_merge([
+    //         'content' => $content,
+    //         'course' => $course,
+    //         'allLessons' => $allLessons,
+    //         'progress' => $progress,
+    //         'isEnrolled' => $isEnrolled,
+    //     ], $this->getTranslationData('course')));
+    // }
     public function showContent($course_id, $content_id = null)
     {
         // Case 1: content_id is given → find content, then course
@@ -110,14 +156,29 @@ class HomeController extends Controller
         $allLessons = CourseContent::where('course_id', $course->id)
             ->where('is_active', 1)
             ->orderBy('sort_order')
-            ->select('id', 'title_en', 'title_ar', 'sort_order', 'is_active', 'video_url')
+            ->select('id', 'course_id', 'title_en', 'title_ar', 'sort_order', 'is_active', 'video_url')
             ->get();
+
+        // Ensure video URLs are properly formatted for frontend
+        if ($content->video_url && !filter_var($content->video_url, FILTER_VALIDATE_URL)) {
+            $content->video_url = asset($content->video_url);
+        }
+
+        // Format all lesson video URLs
+        $allLessons->transform(function ($lesson) {
+            if ($lesson->video_url && !filter_var($lesson->video_url, FILTER_VALIDATE_URL)) {
+                $lesson->video_url = asset($lesson->video_url);
+            }
+            return $lesson;
+        });
 
         // Calculate progress
         $progress = null;
         if (auth()->check()) {
             $progress = [
                 'total_lessons' => $allLessons->count(),
+                'completed_lessons' => 0, // You can implement this based on your tracking system
+                'percentage' => 0,
             ];
         }
 

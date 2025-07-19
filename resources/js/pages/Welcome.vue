@@ -119,7 +119,7 @@ const fallbackTranslations = {
         quick_links: isRTL.value ? 'روابط سريعة' : 'Quick Links',
         categories: isRTL.value ? 'الفئات' : 'Categories',
         support: isRTL.value ? 'الدعم' : 'Support',
-        copyright: isRTL.value ? '© ٢٠٢٤ أكاديمية برمجة. جميع الحقوق محفوظة.' : '© 2024 Barmaja Academy. All rights reserved.',
+        copyright: isRTL.value ? '© ٢٠٢ل أكاديمية برمجة. جميع الحقوق محفوظة.' : '© 2024 Barmaja Academy. All rights reserved.',
         links: {
             courses: isRTL.value ? 'الدورات' : 'Courses',
             blog: isRTL.value ? 'المدونة' : 'Blog',
@@ -178,6 +178,66 @@ const heroVisible = ref(false);
 onMounted(() => {
     setTimeout(() => heroVisible.value = true, 100);
 });
+
+// Enhanced feature configuration with improved icons and styling
+const enhancedFeatures = [
+    {
+        key: 'videos',
+        icon: 'fas fa-play-circle',
+        gradient: 'from-red-500 to-pink-600',
+        bgPattern: 'from-red-50 to-pink-50 dark:from-red-900/10 dark:to-pink-900/10'
+    },
+    {
+        key: 'instructors',
+        icon: 'fas fa-user-graduate',
+        gradient: 'from-blue-500 to-indigo-600',
+        bgPattern: 'from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10'
+    },
+    {
+        key: 'certificates',
+        icon: 'fas fa-award',
+        gradient: 'from-yellow-500 to-orange-600',
+        bgPattern: 'from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10'
+    },
+    {
+        key: 'labs',
+        icon: 'fas fa-code',
+        gradient: 'from-green-500 to-emerald-600',
+        bgPattern: 'from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10'
+    },
+    {
+        key: 'support',
+        icon: 'fas fa-comments',
+        gradient: 'from-purple-500 to-violet-600',
+        bgPattern: 'from-purple-50 to-violet-50 dark:from-purple-900/10 dark:to-violet-900/10'
+    },
+    {
+        key: 'mobile',
+        icon: 'fas fa-mobile-alt',
+        gradient: 'from-cyan-500 to-blue-600',
+        bgPattern: 'from-cyan-50 to-blue-50 dark:from-cyan-900/10 dark:to-blue-900/10'
+    }
+];
+
+// Course images array - high quality programming-related images
+const courseImages = [
+    'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=500&h=300&fit=crop', // JavaScript/Web Development
+    'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=500&h=300&fit=crop', // Mobile Development  
+    'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&h=300&fit=crop', // Backend Development
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=300&fit=crop', // Frontend Frameworks
+    'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=500&h=300&fit=crop', // Database Design
+    'https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=500&h=300&fit=crop'  // API Development
+];
+
+// Blog images array - diverse tech and programming images
+const blogImages = [
+    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=500&h=300&fit=crop', // Technology/Programming
+    'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=500&h=300&fit=crop', // Code editor
+    'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=500&h=300&fit=crop', // Data/Analytics
+    'https://images.unsplash.com/photo-1526378722484-bd91ca387119?w=500&h=300&fit=crop', // Mobile apps
+    'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=500&h=300&fit=crop', // Startup/Tech
+    'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=500&h=300&fit=crop'  // Programming setup
+];
 </script>
 
 <template>
@@ -366,8 +426,9 @@ onMounted(() => {
                         class="group bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-gray-100 dark:border-gray-800">
 
                         <div class="relative overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&h=300&fit=crop"
-                                alt="Course"
+                            <!-- Dynamic programming-related images based on course index -->
+                            <img :src="courseImages[index % courseImages.length]"
+                                :alt="getLocalizedContent(course, 'title')"
                                 class="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-110">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
 
@@ -412,7 +473,7 @@ onMounted(() => {
                                     <div class="flex items-center">
                                         <i class="fas fa-clock" :class="isRTL ? 'ml-2' : 'mr-2'"></i>
                                         <span class="text-sm font-medium">24 {{ getTranslation('featured_courses.hours')
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <div class="flex items-center">
                                         <i class="fas fa-users" :class="isRTL ? 'ml-2' : 'mr-2'"></i>
@@ -447,8 +508,16 @@ onMounted(() => {
             </div>
         </section>
 
-        <!-- Features Section -->
+        <!-- Features Section - Enhanced with better icons and design -->
         <section class="py-20 lg:py-32 bg-gray-50 dark:bg-gray-900 relative overflow-hidden">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-40">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-indigo-600/5"></div>
+                <div class="absolute top-0 left-0 w-full h-full"
+                    style="background-image: radial-gradient(circle at 25% 25%, #3b82f640 0%, transparent 50%), radial-gradient(circle at 75% 75%, #8b5cf640 0%, transparent 50%)">
+                </div>
+            </div>
+
             <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16">
                     <h2 class="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
@@ -460,39 +529,56 @@ onMounted(() => {
                 </div>
 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-                    <!-- Feature Cards -->
-                    <div v-for="(feature, index) in [
-                        { key: 'videos', icon: 'fas fa-video', gradient: 'from-blue-500 to-blue-600' },
-                        { key: 'instructors', icon: 'fas fa-users', gradient: 'from-purple-500 to-purple-600' },
-                        { key: 'certificates', icon: 'fas fa-certificate', gradient: 'from-green-500 to-green-600' },
-                        { key: 'labs', icon: 'fas fa-laptop-code', gradient: 'from-yellow-500 to-yellow-600' },
-                        { key: 'support', icon: 'fas fa-headset', gradient: 'from-red-500 to-red-600' },
-                        { key: 'mobile', icon: 'fas fa-mobile-alt', gradient: 'from-indigo-500 to-indigo-600' }
-                    ]" :key="feature.key"
-                        class="group p-8 bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 text-center border border-gray-100 dark:border-gray-700"
+                    <!-- Enhanced Feature Cards -->
+                    <div v-for="(feature, index) in enhancedFeatures" :key="feature.key"
+                        class="group relative p-8 bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 text-center border border-gray-100 dark:border-gray-700 overflow-hidden"
                         :class="{ 'text-right': isRTL }">
 
+                        <!-- Background Gradient -->
+                        <div class="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-500"
+                            :class="feature.bgPattern"></div>
+
+                        <!-- Icon Container with Enhanced Design -->
                         <div class="relative mb-8">
-                            <div class="w-20 h-20 mx-auto bg-gradient-to-r rounded-3xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-all duration-300"
+                            <!-- Outer Ring -->
+                            <div class="absolute inset-0 w-24 h-24 mx-auto rounded-full bg-gradient-to-r opacity-20 group-hover:opacity-30 transition-opacity duration-300 animate-pulse"
+                                :class="feature.gradient"></div>
+
+                            <!-- Main Icon Container -->
+                            <div class="relative w-24 h-24 mx-auto bg-gradient-to-r rounded-full flex items-center justify-center shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300"
                                 :class="feature.gradient">
-                                <i :class="feature.icon" class="text-white text-3xl"></i>
+                                <i :class="feature.icon" class="text-white text-4xl"></i>
                             </div>
-                            <div class="absolute inset-0 w-20 h-20 mx-auto rounded-3xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"
-                                :class="`bg-gradient-to-r ${feature.gradient}`"></div>
+
+                            <!-- Decorative Elements -->
+                            <div class="absolute top-2 right-2 w-3 h-3 bg-white/30 rounded-full animate-ping"
+                                style="animation-delay: 0.5s;"></div>
+                            <div class="absolute bottom-2 left-2 w-2 h-2 bg-white/40 rounded-full animate-ping"
+                                style="animation-delay: 1s;"></div>
                         </div>
 
-                        <h3 class="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                            {{ getTranslation(`features.items.${feature.key}.title`) }}
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-                            {{ getTranslation(`features.items.${feature.key}.description`) }}
-                        </p>
+                        <!-- Content -->
+                        <div class="relative z-10">
+                            <h3 class="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r transition-all duration-300"
+                                :class="`group-hover:${feature.gradient}`">
+                                {{ getTranslation(`features.items.${feature.key}.title`) }}
+                            </h3>
+                            <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                                {{ getTranslation(`features.items.${feature.key}.description`) }}
+                            </p>
+                        </div>
+
+                        <!-- Hover Effect Border -->
+                        <div class="absolute inset-0 rounded-3xl bg-gradient-to-r opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"
+                            :class="feature.gradient" style="padding: 2px;">
+                            <div class="w-full h-full bg-white dark:bg-gray-800 rounded-3xl"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Blog Section -->
+        <!-- Blog Section with Better Images -->
         <section class="py-20 lg:py-32 bg-white dark:bg-gray-800">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16">
@@ -505,13 +591,19 @@ onMounted(() => {
                 </div>
 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-                    <article v-for="blog in threeBlogs" :key="blog.id"
+                    <article v-for="(blog, index) in threeBlogs" :key="blog.id"
                         class="group bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-gray-100 dark:border-gray-800">
                         <div class="relative overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=500&h=300&fit=crop"
-                                alt="Blog post"
+                            <!-- Dynamic tech-related images -->
+                            <img :src="blogImages[index % blogImages.length]" :alt="getLocalizedContent(blog, 'title')"
                                 class="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-110">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+
+                            <!-- Category Badge -->
+                            <div
+                                class="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                {{ getTranslation('blog.tech_trends') }}
+                            </div>
                         </div>
 
                         <div class="p-8">
@@ -780,8 +872,50 @@ onMounted(() => {
     animation: float 6s ease-in-out infinite;
 }
 
+/* Enhanced pulse animation */
+@keyframes enhanced-pulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
+.animate-enhanced-pulse {
+    animation: enhanced-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 /* Smooth scroll behavior */
 html {
     scroll-behavior: smooth;
+}
+
+/* Custom gradient text hover effect */
+.gradient-text-hover {
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 </style>

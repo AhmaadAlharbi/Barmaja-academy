@@ -46,6 +46,7 @@ const props = defineProps<{
     };
     allLessons?: Array<{
         id: number;
+        course_id: number;
         title_en: string;
         sort_order: number;
         is_active: number;
@@ -82,6 +83,13 @@ const sortedComments = computed(() => {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
 });
+
+// Video handling methods
+const isDirectVideoFile = (url: string | null) => {
+    if (!url) return false;
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi'];
+    return videoExtensions.some(ext => url.toLowerCase().includes(ext));
+};
 
 const getVideoEmbedUrl = (url: string) => {
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
@@ -263,7 +271,18 @@ const formatPrice = (price: number) => {
                         <div class="aspect-video relative">
                             <!-- Enrolled User: Full Video Access -->
                             <div v-if="isEnrolled && content.video_url">
-                                <iframe :src="getVideoEmbedUrl(content.video_url)" class="w-full h-full" frameborder="0"
+                                <!-- Direct Video File (MP4, etc.) -->
+                                <video v-if="isDirectVideoFile(content.video_url)" class="w-full h-full bg-black"
+                                    controls preload="metadata" controlslist="nodownload">
+                                    <source :src="content.video_url" type="video/mp4">
+                                    <p class="text-white p-8 text-center">
+                                        Your browser does not support the video tag.
+                                    </p>
+                                </video>
+
+                                <!-- Embedded Video (YouTube, Vimeo) -->
+                                <iframe v-else :src="getVideoEmbedUrl(content.video_url)" class="w-full h-full"
+                                    frameborder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowfullscreen>
                                 </iframe>
@@ -344,6 +363,17 @@ const formatPrice = (price: number) => {
                                     ]">
                                         <i class="fas fa-comments mr-1"></i>
                                         <span>{{ commentsCount }} comments</span>
+                                    </div>
+                                    <!-- Video type indicator -->
+                                    <div v-if="content.video_url" :class="[
+                                        'flex items-center text-sm px-2 py-1 rounded-full',
+                                        isEnrolled
+                                            ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                                    ]">
+                                        <i class="fas fa-play mr-1"></i>
+                                        <span>{{ isDirectVideoFile(content.video_url) ? 'HD Video' : 'Embedded'
+                                            }}</span>
                                     </div>
                                 </div>
                                 <h1 :class="[
@@ -570,9 +600,14 @@ const formatPrice = (price: number) => {
                                     ? 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer'
                                     : 'opacity-75'
                             ]">
-                                <Link v-if="isEnrolled" :href="`/course-content/${lesson.id}`" class="block">
+
+                                <Link v-if="isEnrolled" :href="route('course.content', {
+                                    course_id: lesson.course_id,
+                                    content_id: lesson.id
+                                })" class="block">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-3">
+
                                         <div :class="[
                                             'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium',
                                             lesson.id === content.id
@@ -586,9 +621,22 @@ const formatPrice = (price: number) => {
                                                 {{ lesson.title_en }}
                                             </h4>
                                             <div
-                                                class="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                <i v-if="lesson.video_url" class="fas fa-play mr-1"></i>
-                                                <span>15 min</span>
+                                                class="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1 space-x-2">
+                                                <div class="flex items-center">
+                                                    <i v-if="lesson.video_url" :class="[
+                                                        'fas mr-1',
+                                                        isDirectVideoFile(lesson.video_url) ? 'fa-play-circle text-green-500' : 'fa-play text-blue-500'
+                                                    ]"></i>
+                                                    <span>15 min</span>
+                                                </div>
+                                                <div v-if="lesson.video_url" class="text-xs px-2 py-0.5 rounded-full"
+                                                    :class="[
+                                                        isDirectVideoFile(lesson.video_url)
+                                                            ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                                                            : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+                                                    ]">
+                                                    {{ isDirectVideoFile(lesson.video_url) ? 'HD' : 'Stream' }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -627,7 +675,7 @@ const formatPrice = (price: number) => {
 
                         <!-- Course Actions -->
                         <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3">
-                            <Link :href="`/course/${course?.id}`"
+                            <Link :href="`/courses/list`"
                                 class="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 py-2 px-4 rounded-lg font-medium transition-colors text-center block">
                             <i class="fas fa-arrow-left mr-2"></i>
                             Back to Course
@@ -679,5 +727,23 @@ const formatPrice = (price: number) => {
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
     background: rgba(156, 163, 175, 0.7);
+}
+
+/* Video player styles */
+video {
+    background-color: #000;
+}
+
+video::-webkit-media-controls-panel {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Video quality indicators */
+.video-quality-hd {
+    background: linear-gradient(45deg, #10b981, #059669);
+}
+
+.video-quality-stream {
+    background: linear-gradient(45deg, #3b82f6, #2563eb);
 }
 </style>

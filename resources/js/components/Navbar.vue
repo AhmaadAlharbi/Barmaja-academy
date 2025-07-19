@@ -50,9 +50,6 @@ function getFlagEmoji(localeCode: string) {
     const flags = {
         'en': '🇺🇸',
         'ar': '🇸🇦',
-        'es': '🇪🇸',
-        'fr': '🇫🇷',
-        'de': '🇩🇪',
     };
     return flags[localeCode] || '🌐';
 }
@@ -148,8 +145,7 @@ function toggleLanguageDropdown() {
                 </Link>
 
                 <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-8"
-                    :class="{ 'space-x-reverse': currentLocale === 'ar' }">
+                <div class="hidden md:flex items-center space-x-8">
                     <Link v-for="item in navItems" :key="item.name" :href="item.href"
                         class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">
                     {{ item.name }}
