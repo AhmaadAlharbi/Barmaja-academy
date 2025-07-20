@@ -11,6 +11,22 @@ use Carbon\Carbon;
 
 class CourseUserController extends Controller
 {
+    // public function enrollPage($id)
+    // {
+    //     $course = Course::findOrFail($id);
+    //     $isEnrolled = false;
+
+    //     if (Auth::check()) {
+    //         $isEnrolled = Auth::user()->courses()->where('course_id', $id)->exists();
+    //     }
+
+    //     return Inertia::render('EnrollPage', [
+    //         'stripeKey' => env('STRIPE_KEY'),
+    //         'setupIntent' => auth()->user() ? auth()->user()->createSetupIntent() : null,
+    //         'course' => $course,
+    //         'isEnrolled' => $isEnrolled
+    //     ]);
+    // }
     public function enrollPage($id)
     {
         $course = Course::findOrFail($id);
@@ -24,10 +40,16 @@ class CourseUserController extends Controller
             'stripeKey' => env('STRIPE_KEY'),
             'setupIntent' => auth()->user() ? auth()->user()->createSetupIntent() : null,
             'course' => $course,
-            'isEnrolled' => $isEnrolled
+            'isEnrolled' => $isEnrolled,
+            // Add translations
+            'translations' => [
+                'enroll' => __('enroll'),
+                'validation' => __('validation'), // For form validation messages
+            ],
+            // Add current locale for component
+            'currentLocale' => app()->getLocale(),
         ]);
     }
-
     public function enroll(Request $request)
     {
         // 1. CHECK: Is user logged in?

@@ -303,11 +303,7 @@ const blogImages = [
                                     class="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 </div>
                                 </Link>
-                                <button
-                                    class="group px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-600 dark:hover:border-blue-400 rounded-2xl text-lg font-semibold transition-all duration-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                    <i class="fas fa-play" :class="isRTL ? 'ml-2' : 'mr-2'"></i>
-                                    {{ getTranslation('hero.watch_demo') }}
-                                </button>
+
                             </div>
                         </Transition>
 
@@ -489,10 +485,17 @@ const blogImages = [
                                 </div>
                             </div>
 
-                            <button
-                                class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                                {{ getTranslation('featured_courses.enroll_now') }}
-                            </button>
+                            <Link :href="route('frontend.show.course', { id: course.id })" class="block w-full text-center py-4 px-6 
+           bg-gradient-to-r from-indigo-500 to-purple-600 
+           hover:from-indigo-600 hover:to-purple-700
+           text-white font-semibold text-lg rounded-2xl 
+           shadow-lg hover:shadow-2xl
+           transition-all duration-300 ease-out
+           transform hover:-translate-y-0.5
+           focus:outline-none focus:ring-4 focus:ring-indigo-300">
+                            {{ getTranslation('featured_courses.enroll_now') }}
+                            <ChevronRightIcon class="inline-block w-5 h-5 ml-2" />
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -624,7 +627,7 @@ const blogImages = [
                                 {{ getLocalizedContent(blog, 'content').substring(0, 150) }}...
                             </p>
 
-                            <Link :href="`/blogs/${blog.slug}`"
+                            <Link :href="route('frontend.show.blog', { id: blog.id })"
                                 class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-bold transition-colors"
                                 :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
                             <span>{{ getTranslation('blog.read_more') }}</span>

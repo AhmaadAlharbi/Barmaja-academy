@@ -196,7 +196,7 @@ function toggleLanguageDropdown() {
                         {{ currentLocale === 'ar' ? 'دخول' : 'Login' }}
                         </Link>
                         <Link href="/register"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors mr-10">
                         {{ currentLocale === 'ar' ? 'تسجيل' : 'Sign Up' }}
                         </Link>
                     </div>
