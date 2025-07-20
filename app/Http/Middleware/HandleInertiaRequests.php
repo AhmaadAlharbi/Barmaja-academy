@@ -39,7 +39,6 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
-
         // Build your locale data
         $localeData = [
             'current' => LaravelLocalization::getCurrentLocale(),

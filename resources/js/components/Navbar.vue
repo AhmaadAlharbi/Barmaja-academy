@@ -155,15 +155,9 @@ function toggleLanguageDropdown() {
                 <!-- Desktop Actions -->
                 <div class="hidden md:flex items-center space-x-4"
                     :class="{ 'space-x-reverse': currentLocale === 'ar' }">
-                    <!-- Dark Mode Toggle -->
-                    <button
-                        class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                        <i class="fas fa-sun dark:hidden text-lg"></i>
-                        <i class="fas fa-moon hidden dark:block text-lg"></i>
-                    </button>
 
                     <!-- Language Switcher -->
-                    <div class="relative" ref="languageDropdownRef">
+                    <div class="relative " ref="languageDropdownRef">
                         <button @click="toggleLanguageDropdown"
                             class="flex items-center space-x-2 p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors border border-transparent hover:border-gray-300">
                             <span class="text-lg">{{ getFlagEmoji(currentLocale) }}</span>
