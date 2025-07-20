@@ -119,42 +119,41 @@ const processPayment = async () => {
     cardErrors.value = '';
 
     try {
-        const { error, setupIntent } = await stripe.value.confirmCardSetup(
-            props.setupIntent.client_secret,
-            {
-                payment_method: {
-                    card: cardElement.value,
-                    billing_details: {
-                        name: paymentForm.cardholder_name,
-                        email: paymentForm.email,
-                    }
-                }
-            }
-        );
+        // Step 1: Create Payment Method
+        const { error: pmError, paymentMethod } = await stripe.value.createPaymentMethod({
+            type: 'card',
+            card: cardElement.value,
+            billing_details: {
+                name: paymentForm.cardholder_name,
+                email: paymentForm.email,
+            },
+        });
 
-        if (error) {
-            cardErrors.value = error.message;
+        if (pmError) {
+            cardErrors.value = pmError.message;
             isProcessing.value = false;
-        } else {
-            // Payment method created successfully
-            paymentForm.payment_method = setupIntent.payment_method;
-
-            // Submit to backend
-            paymentForm.post('/enroll-course', {
-                onSuccess: () => {
-                    paymentSuccess.value = true;
-                    console.log('Payment successful');
-                },
-                onError: (errors) => {
-                    console.error('Payment failed:', errors);
-                    cardErrors.value = 'Payment processing failed. Please try again.';
-                },
-                onFinish: () => {
-                    isProcessing.value = false;
-                }
-            });
+            return;
         }
+
+        // Step 2: Send to backend with payment method
+        paymentForm.payment_method = paymentMethod.id;
+
+        paymentForm.post('/enroll-course', {
+            onSuccess: () => {
+                paymentSuccess.value = true;
+                console.log('Payment successful');
+            },
+            onError: (errors) => {
+                console.error('Payment failed:', errors);
+                cardErrors.value = 'Payment processing failed. Please try again.';
+            },
+            onFinish: () => {
+                isProcessing.value = false;
+            }
+        });
+
     } catch (err) {
+        console.error('Payment error:', err);
         cardErrors.value = 'An unexpected error occurred. Please try again.';
         isProcessing.value = false;
     }

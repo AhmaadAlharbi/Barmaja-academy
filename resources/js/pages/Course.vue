@@ -18,6 +18,7 @@ const props = defineProps<{
         description_ar: string;
         description_en: string;
         price: number;
+        preview_video_url: string;
         contents: Array<{
             id: number;
             title_ar: string;
@@ -30,6 +31,25 @@ const props = defineProps<{
     };
     isEnrolled?: boolean;
 }>();
+
+// Add video handling methods
+const isDirectVideoFile = (url: string | null) => {
+    if (!url) return false;
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi'];
+    return videoExtensions.some(ext => url.toLowerCase().includes(ext));
+};
+
+const getVideoEmbedUrl = (url: string) => {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        const videoId = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
+        return `https://www.youtube.com/embed/${videoId}`;
+    }
+    if (url.includes('vimeo.com')) {
+        const videoId = url.split('/').pop();
+        return `https://player.vimeo.com/video/${videoId}`;
+    }
+    return url;
+};
 
 // Get current locale and RTL detection
 const currentLocale = computed(() => page.props.locale?.current || 'en');
@@ -78,6 +98,10 @@ const t = {
             locked: 'Locked',
             duration: 'min',
         },
+        video: {
+            preview: 'Course Preview',
+            no_preview: 'No preview available',
+        },
     },
     ar: {
         page_title: 'تفاصيل الدورة',
@@ -119,6 +143,10 @@ const t = {
             video: 'فيديو',
             locked: 'مقفل',
             duration: 'دقيقة',
+        },
+        video: {
+            preview: 'معاينة الدورة',
+            no_preview: 'لا توجد معاينة متاحة',
         },
     },
 };
@@ -263,6 +291,55 @@ const formatPrice = (price: number) => {
                             :class="{ 'text-right': isRTL }">
                             {{ getLocalizedContent(course, 'description') }}
                         </p>
+
+                        <!-- Preview Video Section -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4"
+                                :class="{ 'text-right': isRTL }">
+                                {{ getTranslation('video.preview') }}
+                            </h3>
+                            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+                                <div class="aspect-video relative">
+                                    <!-- Preview Video Available -->
+                                    <div v-if="course.preview_video_url">
+                                        <!-- Direct Video File (MP4, etc.) -->
+                                        <video v-if="isDirectVideoFile(course.preview_video_url)"
+                                            class="w-full h-full bg-black" controls preload="metadata"
+                                            controlslist="nodownload">
+                                            <source :src="course.preview_video_url" type="video/mp4">
+                                            <p class="text-white p-8 text-center">
+                                                Your browser does not support the video tag.
+                                            </p>
+                                        </video>
+
+                                        <!-- Embedded Video (YouTube, Vimeo) -->
+                                        <iframe v-else :src="getVideoEmbedUrl(course.preview_video_url)"
+                                            class="w-full h-full" frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen>
+                                        </iframe>
+                                    </div>
+
+                                    <!-- No Preview Video -->
+                                    <div v-else
+                                        class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+                                        <div class="text-center">
+                                            <div
+                                                class="w-20 h-20 bg-white dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                                                <i class="fas fa-play text-gray-400 dark:text-gray-300 text-2xl"></i>
+                                            </div>
+                                            <h4 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                                {{ getTranslation('video.no_preview') }}
+                                            </h4>
+                                            <p class="text-gray-600 dark:text-gray-400 max-w-md">
+                                                {{ isRTL ? 'قم بالتسجيل للوصول إلى محتوى الدورة الكامل' :
+                                                    'Enroll to access the full course content' }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Instructor Info -->
                         <div class="flex items-center p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg"
@@ -519,5 +596,14 @@ const formatPrice = (price: number) => {
 .prose li {
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
+}
+
+/* Video player styles */
+video {
+    background-color: #000;
+}
+
+video::-webkit-media-controls-panel {
+    background-color: rgba(0, 0, 0, 0.8);
 }
 </style>

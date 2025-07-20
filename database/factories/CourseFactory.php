@@ -96,11 +96,7 @@ class CourseFactory extends Factory
         $slug = Str::slug($course['title_en']) . '-' . $this->faker->unique()->numberBetween(1, 1000);
 
         $videoUrls = [
-            'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-            'https://vimeo.com/123456789',
-            'https://www.youtube.com/watch?v=ScMzIvxBSi4',
-            'https://vimeo.com/987654321',
-            'https://www.youtube.com/watch?v=jNQXAC9IVRw',
+            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'
         ];
 
         return [
@@ -110,7 +106,7 @@ class CourseFactory extends Factory
             'description_ar' => $course['description_ar'],
             'description_en' => $course['description_en'],
             'price' => $this->faker->randomFloat(2, 29.99, 299.99),
-            'preview_video_url' => $this->faker->optional(0.8)->randomElement($videoUrls),
+            'preview_video_url' => 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
             'is_published' => $this->faker->boolean(70), // 70% chance of being published
         ];
     }
