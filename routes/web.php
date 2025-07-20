@@ -9,6 +9,7 @@ use App\Http\Controllers\CourseContentCommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CourseContentController;
 use App\Http\Controllers\CourseUserController;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 Route::group([
@@ -36,7 +37,7 @@ Route::group([
     Route::post('/enroll-course', [CourseUserController::class, 'enroll'])->name('course.enroll');
 
     // Dashboard routes (Protected by auth middleware)
-    Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware(['auth', 'verified', EnsureUserIsAdmin::class])->group(function () {
         // Main dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
