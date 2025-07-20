@@ -217,14 +217,17 @@ function toggleLanguageDropdown() {
                         <div
                             class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                             <div class="py-2">
-                                <Link href="/dashboard"
-                                    class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                {{ currentLocale === 'ar' ? 'لوحة التحكم' : 'Dashboard' }}
-                                </Link>
-                                <Link href="/profile"
-                                    class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                {{ currentLocale === 'ar' ? 'الملف الشخصي' : 'Profile' }}
-                                </Link>
+                                <div v-if="$page.props.auth?.user?.role === 'admin'">
+                                    <Link href="/dashboard"
+                                        class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    {{ currentLocale === 'ar' ? 'لوحة التحكم' : 'Dashboard' }}
+                                    </Link>
+                                    <Link href="/profile"
+                                        class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    {{ currentLocale === 'ar' ? 'الملف الشخصي' : 'Profile' }}
+                                    </Link>
+                                </div>
+
                                 <hr class="my-2 border-gray-200 dark:border-gray-700">
                                 <Link href="/logout" method="post"
                                     class="block px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900">

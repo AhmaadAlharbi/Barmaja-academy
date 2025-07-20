@@ -1,18 +1,36 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
-import { computed, ref, onMounted } from 'vue';
+import {
+    Button
+} from '@/components/ui/button';
+import {
+    Checkbox
+} from '@/components/ui/checkbox';
+import {
+    Input
+} from '@/components/ui/input';
+import {
+    Label
+} from '@/components/ui/label';
+import {
+    Head,
+    useForm,
+    usePage
+} from '@inertiajs/vue3';
+import {
+    LoaderCircle
+} from 'lucide-vue-next';
+import {
+    computed,
+    ref,
+    onMounted
+} from 'vue';
 
-defineProps<{
-    status?: string;
+defineProps < {
+    status ? : string;
     canResetPassword: boolean;
-}>();
+} > ();
 
 const page = usePage();
 
@@ -22,10 +40,9 @@ const form = useForm({
     remember: false,
 });
 
-// Get current locale from global props
+// Get current locale
 const currentLocale = computed(() => page.props.locale?.current || 'en');
 const isRTL = computed(() => currentLocale.value === 'ar');
-const supportedLocales = computed(() => page.props.locale?.supported || []);
 
 // Get translations from props with fallbacks
 const translations = computed(() => page.props.translations?.auth || {});
@@ -34,7 +51,8 @@ const translations = computed(() => page.props.translations?.auth || {});
 const fallbackTranslations = {
     login: {
         title: isRTL.value ? 'تسجيل الدخول إلى حسابك' : 'Log in to your account',
-        description: isRTL.value ? 'أدخل بريدك الإلكتروني وكلمة المرور أدناه لتسجيل الدخول' : 'Enter your email and password below to log in',
+        description: isRTL.value ? 'أدخل بريدك الإلكتروني وكلمة المرور أدناه لتسجيل الدخول' :
+            'Enter your email and password below to log in',
         welcome_back: isRTL.value ? 'مرحباً بعودتك' : 'Welcome Back',
         subtitle: isRTL.value ? 'واصل رحلة التعلم معنا' : 'Continue your learning journey with us',
         email: isRTL.value ? 'عنوان البريد الإلكتروني' : 'Email address',
@@ -94,11 +112,15 @@ const submit = () => {
 const toggleLanguage = () => {
     const targetLocale = currentLocale.value === 'ar' ? 'en' : 'ar';
 
-    // Find the target locale URL from supported locales
-    const targetLocaleData = supportedLocales.value.find(locale => locale.code === targetLocale);
-
-    if (targetLocaleData && targetLocaleData.url) {
-        window.location.href = targetLocaleData.url;
+    // Use mcamara's localized URL helper
+    // This assumes you have the localized URLs available in your props
+    if (page.props.localizedUrls && page.props.localizedUrls[targetLocale]) {
+        window.location.href = page.props.localizedUrls[targetLocale];
+    } else {
+        // Fallback: construct the URL manually
+        const currentUrl = window.location.pathname;
+        const baseUrl = currentUrl.replace(/^\/(ar|en)/, '');
+        window.location.href = `/${targetLocale}${baseUrl}`;
     }
 };
 </script>
