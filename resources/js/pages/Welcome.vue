@@ -664,7 +664,7 @@ const blogImages = [
                         class="px-10 py-5 bg-white text-blue-600 hover:bg-gray-100 rounded-2xl text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
                     {{ getTranslation('cta.browse_courses') }}
                     </Link>
-                    <Link href="/register"
+                    <Link v-if="!page.props.auth?.user" href="/register"
                         class="px-10 py-5 border-2 border-white text-white hover:bg-white hover:text-blue-600 rounded-2xl text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
                     {{ getTranslation('cta.sign_up_free') }}
                     </Link>
