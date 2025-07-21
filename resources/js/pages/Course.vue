@@ -257,7 +257,7 @@ const formatPrice = (price: number) => {
                             </Link>
                             <i class="fas fa-chevron-right text-xs" :class="{ 'fas fa-chevron-left': isRTL }"></i>
                             <span class="text-gray-900 dark:text-white">{{ getLocalizedContent(course, 'title')
-                                }}</span>
+                            }}</span>
                         </nav>
 
                         <!-- Course Title -->

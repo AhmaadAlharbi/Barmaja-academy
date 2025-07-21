@@ -348,18 +348,7 @@ watch([selectedCategory, selectedLevel, selectedPriceRange, selectedSort], () =>
                                 </p>
                             </div>
 
-                            <!-- View Toggle -->
-                            <div class="flex items-center space-x-2" :class="{ 'space-x-reverse': isRTL }">
-                                <button class="p-2 text-blue-600 bg-blue-50 dark:bg-blue-900/30 rounded-lg"
-                                    :title="getTranslation('view.grid_view')">
-                                    <i class="fas fa-th-large"></i>
-                                </button>
-                                <button
-                                    class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg"
-                                    :title="getTranslation('view.list_view')">
-                                    <i class="fas fa-list"></i>
-                                </button>
-                            </div>
+
                         </div>
 
                         <!-- Loading State -->
@@ -543,14 +532,17 @@ watch([selectedCategory, selectedLevel, selectedPriceRange, selectedSort], () =>
                         {{ getTranslation('pagination.showing') }} {{ courses.from }}-{{ courses.to }}
                         {{ getTranslation('pagination.of') }} {{ courses.total }} {{
                             getTranslation('pagination.results') }}
+
+
                     </div>
 
-                    <div class="flex items-center space-x-2" :class="{ 'space-x-reverse': isRTL }">
+                    <div class="flex items-center space-x-2 " :class="{ 'space-x-reverse': isRTL }">
                         <Link v-if="courses.prev_page_url" :href="courses.prev_page_url"
                             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                             :class="isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'">
                         <i class="fas fa-chevron-left" :class="{ 'fas fa-chevron-right': isRTL }"></i>
                         <span>{{ getTranslation('pagination.previous') }}</span>
+
                         </Link>
                         <span v-else
                             class="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-400 dark:text-gray-600 cursor-not-allowed"

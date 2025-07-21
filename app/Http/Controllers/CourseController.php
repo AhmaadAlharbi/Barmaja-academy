@@ -79,6 +79,7 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
+
         $course->load(['contents' => function ($query) {
             $query->orderBy('sort_order');
         }]);

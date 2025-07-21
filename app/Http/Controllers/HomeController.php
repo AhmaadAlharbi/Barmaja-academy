@@ -188,6 +188,6 @@ class HomeController extends Controller
             'allLessons' => $allLessons,
             'progress' => $progress,
             'isEnrolled' => $isEnrolled,
-        ], $this->getTranslationData('course')));
+        ], $this->getTranslationData('course-content')));
     }
 }
