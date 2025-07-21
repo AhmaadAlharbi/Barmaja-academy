@@ -22,6 +22,20 @@ defineProps<{
         published_at: string;
         created_at: string;
         updated_at: string;
+        // Author relationship data
+        author?: {
+            id: number;
+            name: string;
+            email: string;
+            avatar?: string;
+            bio_ar?: string;
+            bio_en?: string;
+            title_ar?: string;
+            title_en?: string;
+            social_twitter?: string;
+            social_github?: string;
+            social_linkedin?: string;
+        };
     };
     relatedBlogs?: Array<{
         id: number;
@@ -32,6 +46,10 @@ defineProps<{
         content_en: string;
         published_at: string;
         created_at: string;
+        author?: {
+            name: string;
+            avatar?: string;
+        };
     }>;
 }>();
 
@@ -49,7 +67,10 @@ const fallbackTranslations = {
     },
     article: {
         author_default: isRTL.value ? 'أحمد خليل' : 'Ahmed Khalil',
-        author_title: isRTL.value ? 'مطور أول' : 'Senior Developer',
+        author_title_default: isRTL.value ? 'مطور أول' : 'Senior Developer',
+        author_bio_default: isRTL.value
+            ? 'مطور ويب متكامل أول في أكاديمية برمجة مع أكثر من ٨ سنوات من الخبرة في تقنيات الويب الحديثة.'
+            : 'Senior Full-Stack Developer at Barmaja Academy with 8+ years of experience in modern web technologies.',
         views: isRTL.value ? 'مشاهدة' : 'views',
         likes: isRTL.value ? 'إعجاب' : 'likes',
         comments: isRTL.value ? 'تعليق' : 'comments',
@@ -60,14 +81,13 @@ const fallbackTranslations = {
         updated_on: isRTL.value ? 'تم التحديث في' : 'Updated on',
         reading_time: isRTL.value ? 'وقت القراءة' : 'Reading time',
         featured_image_alt: isRTL.value ? 'صورة المقال المميزة' : 'Article featured image',
-        author_bio_title: isRTL.value ? 'نبذة عن الكاتب' : 'About the Author'
+        author_bio_title: isRTL.value ? 'نبذة عن الكاتب' : 'About the Author',
+        anonymous_author: isRTL.value ? 'مؤلف مجهول' : 'Anonymous Author'
     },
     author: {
-        bio_default: isRTL.value
-            ? 'مطور ويب متكامل أول في أكاديمية برمجة مع أكثر من ٨ سنوات من الخبرة في تقنيات الويب الحديثة. شغوف بالتعليم ومشاركة المعرفة مع مجتمع المطورين.'
-            : 'Senior Full-Stack Developer at Barmaja Academy with 8+ years of experience in modern web technologies. Passionate about teaching and sharing knowledge with the developer community.',
-        more_articles: isRTL.value ? 'المزيد من مقالات أحمد' : 'More articles by Ahmed',
-        follow_on: isRTL.value ? 'تابع على' : 'Follow on'
+        more_articles: isRTL.value ? 'المزيد من المقالات' : 'More articles',
+        follow_on: isRTL.value ? 'تابع على' : 'Follow on',
+        view_profile: isRTL.value ? 'عرض الملف الشخصي' : 'View Profile'
     },
     comments: {
         title: isRTL.value ? 'التعليقات' : 'Comments',
@@ -80,15 +100,7 @@ const fallbackTranslations = {
         ago: isRTL.value ? 'منذ' : 'ago',
         hours: isRTL.value ? 'ساعات' : 'hours',
         minutes: isRTL.value ? 'دقائق' : 'minutes',
-        days: isRTL.value ? 'أيام' : 'days',
-        sample_comment_1: isRTL.value
-            ? 'مقال رائع! لقد ساعدني هذا حقاً في فهم المفاهيم بشكل أفضل. الأمثلة واضحة وسهلة المتابعة.'
-            : 'Great article! This really helped me understand the concepts better. The examples are clear and easy to follow.',
-        sample_comment_2: isRTL.value
-            ? 'شكراً لك على مشاركة هذه المعرفة! لقد كنت أواجه صعوبة مع هذا الموضوع وشرحك يجعله أوضح بكثير.'
-            : 'Thanks for sharing this knowledge! I\'ve been struggling with this topic and your explanation makes it much clearer.',
-        sample_author_1: isRTL.value ? 'سارة جونسون' : 'Sarah Johnson',
-        sample_author_2: isRTL.value ? 'مايك تشين' : 'Mike Chen'
+        days: isRTL.value ? 'أيام' : 'days'
     },
     related: {
         title: isRTL.value ? 'مقالات ذات صلة' : 'Related Articles',
@@ -112,6 +124,7 @@ const fallbackTranslations = {
         twitter: isRTL.value ? 'تويتر' : 'Twitter',
         linkedin: isRTL.value ? 'لينكد إن' : 'LinkedIn',
         facebook: isRTL.value ? 'فيس بوك' : 'Facebook',
+        github: isRTL.value ? 'جيت هاب' : 'GitHub',
         copy_link: isRTL.value ? 'نسخ الرابط' : 'Copy Link',
         share_on: isRTL.value ? 'شارك على' : 'Share on'
     },
@@ -161,9 +174,43 @@ function getLocalizedContent(item: any, field: string) {
     return isRTL.value ? item[`${field}_ar`] : item[`${field}_en`];
 }
 
+// Helper functions for author information
+const getAuthorName = (blog: any) => {
+    if (blog.author?.name) {
+        return blog.author.name;
+    }
+    return getTranslation('article.author_default');
+};
+
+const getAuthorTitle = (blog: any) => {
+    if (blog.author && (blog.author.title_ar || blog.author.title_en)) {
+        return getLocalizedContent(blog.author, 'title');
+    }
+    return getTranslation('article.author_title_default');
+};
+
+const getAuthorBio = (blog: any) => {
+    if (blog.author && (blog.author.bio_ar || blog.author.bio_en)) {
+        return getLocalizedContent(blog.author, 'bio');
+    }
+    return getTranslation('article.author_bio_default');
+};
+
+const getAuthorAvatar = (blog: any) => {
+    if (blog.author?.avatar) {
+        return blog.author.avatar;
+    }
+    // Default avatar from Unsplash
+    return "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face";
+};
+
+const getAuthorInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+};
+
 // Helper function to estimate reading time
 const getReadingTime = (content: string) => {
-    const wordsPerMinute = 200;
+    const wordsPerMinute = isRTL.value ? 180 : 200; // Arabic is typically slower to read
     const wordCount = content.split(' ').length;
     const minutes = Math.ceil(wordCount / wordsPerMinute);
     return `${minutes} ${getTranslation('article.min_read')}`;
@@ -209,6 +256,20 @@ const timeAgo = (dateString: string) => {
         return `${diffDays} ${getTranslation('comments.days')} ${getTranslation('comments.ago')}`;
     }
 };
+
+// Helper function to extract sample tags from content
+const extractTags = (blog: any) => {
+    const content = getLocalizedContent(blog, 'content').toLowerCase();
+    const availableTags = ['javascript', 'vue_js', 'react', 'node_js', 'css', 'html', 'web_development', 'tutorial', 'programming', 'frontend', 'backend', 'database'];
+
+    const foundTags = availableTags.filter(tag => {
+        const tagText = getTranslation(`tags.${tag}`).toLowerCase();
+        return content.includes(tagText) || content.includes(tag.replace('_', ''));
+    });
+
+    // Return at least a few default tags if none found
+    return foundTags.length > 0 ? foundTags.slice(0, 4) : ['programming', 'web_development', 'tutorial'];
+};
 </script>
 
 <template>
@@ -222,6 +283,7 @@ const timeAgo = (dateString: string) => {
         <meta property="og:title" :content="getLocalizedContent(blog, 'title')">
         <meta property="og:description" :content="truncate(getLocalizedContent(blog, 'content'), 160)">
         <meta property="og:type" content="article">
+        <meta name="author" :content="getAuthorName(blog)">
     </Head>
 
     <div class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300" :dir="isRTL ? 'rtl' : 'ltr'"
@@ -231,7 +293,7 @@ const timeAgo = (dateString: string) => {
         <!-- Back to Blog Navigation -->
         <section class="py-6 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <Link href="/blogs/list"
+                <Link href="/blogs"
                     class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                     :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
                 <i class="fas fa-arrow-left" :class="{ 'fas fa-arrow-right': isRTL }"></i>
@@ -246,11 +308,21 @@ const timeAgo = (dateString: string) => {
                 <!-- Article Meta -->
                 <div class="mb-8">
                     <div class="flex items-center mb-6" :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
-                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face"
-                            alt="Author" class="w-12 h-12 rounded-full">
+                        <!-- Author Avatar -->
+                        <div class="relative">
+                            <img v-if="blog.author?.avatar || getAuthorAvatar(blog)" :src="getAuthorAvatar(blog)"
+                                :alt="getAuthorName(blog)"
+                                class="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700">
+                            <div v-else
+                                class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                                {{ getAuthorInitials(getAuthorName(blog)) }}
+                            </div>
+                        </div>
+
+                        <!-- Author Info -->
                         <div :class="{ 'text-right': isRTL }">
                             <p class="text-lg font-medium text-gray-900 dark:text-white">
-                                {{ getTranslation('article.author_default') }}
+                                {{ getAuthorName(blog) }}
                             </p>
                             <div class="flex items-center text-sm text-gray-500 dark:text-gray-400"
                                 :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
@@ -258,7 +330,7 @@ const timeAgo = (dateString: string) => {
                                 <span>•</span>
                                 <span>{{ getReadingTime(getLocalizedContent(blog, 'content')) }}</span>
                                 <span>•</span>
-                                <span>{{ getTranslation('article.author_title') }}</span>
+                                <span>{{ getAuthorTitle(blog) }}</span>
                             </div>
                         </div>
                     </div>
@@ -269,53 +341,14 @@ const timeAgo = (dateString: string) => {
                         {{ getLocalizedContent(blog, 'title') }}
                     </h1>
 
-                    <!-- Article Stats -->
-                    <div class="flex items-center justify-between py-4 border-y border-gray-200 dark:border-gray-700"
-                        :class="{ 'flex-row-reverse': isRTL }">
-                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400"
-                            :class="isRTL ? 'space-x-reverse space-x-6' : 'space-x-6'">
-                            <span class="flex items-center">
-                                <i class="fas fa-eye" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
-                                2.1k {{ getTranslation('article.views') }}
-                            </span>
-                            <span class="flex items-center">
-                                <i class="fas fa-heart" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
-                                89 {{ getTranslation('article.likes') }}
-                            </span>
-                            <span class="flex items-center">
-                                <i class="fas fa-comment" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
-                                12 {{ getTranslation('article.comments') }}
-                            </span>
-                        </div>
 
-                        <!-- Share Buttons -->
-                        <div class="flex items-center" :class="isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'">
-                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ getTranslation('article.share')
-                                }}</span>
-                            <button
-                                class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
-                                :title="getTranslation('social.twitter')">
-                                <i class="fab fa-twitter text-xs"></i>
-                            </button>
-                            <button
-                                class="w-8 h-8 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-900 transition-colors"
-                                :title="getTranslation('social.linkedin')">
-                                <i class="fab fa-linkedin text-xs"></i>
-                            </button>
-                            <button
-                                class="w-8 h-8 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-gray-900 transition-colors"
-                                :title="getTranslation('social.copy_link')">
-                                <i class="fas fa-link text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Featured Image -->
                 <div class="mb-10">
                     <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=1200&h=600&fit=crop"
                         :alt="getTranslation('article.featured_image_alt')"
-                        class="w-full h-64 lg:h-96 object-cover rounded-2xl">
+                        class="w-full h-64 lg:h-96 object-cover rounded-2xl shadow-lg">
                 </div>
             </div>
         </section>
@@ -337,179 +370,53 @@ const timeAgo = (dateString: string) => {
                     </div>
                 </div>
 
-                <!-- Article Tags -->
-                <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-                    <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-4" :class="{ 'text-right': isRTL }">
-                        {{ getTranslation('article.tags_title') }}
-                    </h3>
-                    <div class="flex flex-wrap gap-2" :class="{ 'justify-end': isRTL }">
-                        <span v-for="tag in ['javascript', 'vue_js', 'web_development', 'tutorial']" :key="tag"
-                            class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
-                            {{ getTranslation(`tags.${tag}`) }}
-                        </span>
-                    </div>
-                </div>
 
-                <!-- Author Bio -->
-                <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-                    <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8">
-                        <div class="flex items-start" :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
-                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face"
-                                alt="Author" class="w-16 h-16 rounded-full">
-                            <div class="flex-1" :class="{ 'text-right': isRTL }">
-                                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                                    {{ getTranslation('article.author_default') }}
-                                </h3>
-                                <p class="text-gray-600 dark:text-gray-300 mb-4">
-                                    {{ getTranslation('author.bio_default') }}
-                                </p>
-                                <div class="flex items-center"
-                                    :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
-                                    <a href="#"
-                                        class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium">
-                                        {{ getTranslation('author.more_articles') }}
-                                    </a>
-                                    <div class="flex" :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
-                                        <a href="#" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                                            <i class="fab fa-twitter"></i>
-                                        </a>
-                                        <a href="#" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                                            <i class="fab fa-github"></i>
-                                        </a>
-                                        <a href="#" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                                            <i class="fab fa-linkedin"></i>
-                                        </a>
+
+
+
+                <!-- Related Articles -->
+                <div v-if="relatedBlogs && relatedBlogs.length > 0" class="mt-16">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8" :class="{ 'text-right': isRTL }">
+                        {{ getTranslation('related.title') }}
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <article v-for="relatedBlog in relatedBlogs.slice(0, 4)" :key="relatedBlog.id"
+                            class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                            <div class="p-6">
+                                <div class="flex items-center mb-3"
+                                    :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
+                                    <img v-if="relatedBlog.author?.avatar" :src="relatedBlog.author.avatar"
+                                        :alt="relatedBlog.author.name" class="w-8 h-8 rounded-full">
+                                    <div v-else
+                                        class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs">
+                                        {{ getAuthorInitials(relatedBlog.author?.name ||
+                                            getTranslation('article.anonymous_author')) }}
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Comments Section -->
-        <section class="py-16 bg-gray-50 dark:bg-gray-800">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8" :class="{ 'text-right': isRTL }">
-                    {{ getTranslation('comments.title') }} (12)
-                </h3>
-
-                <!-- Comment Form -->
-                <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 mb-8">
-                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4"
-                        :class="{ 'text-right': isRTL }">
-                        {{ getTranslation('comments.leave_comment') }}
-                    </h4>
-                    <div class="space-y-4">
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <input type="text" :placeholder="getTranslation('comments.your_name')"
-                                class="px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                                :class="{ 'text-right': isRTL }">
-                            <input type="email" :placeholder="getTranslation('comments.your_email')"
-                                class="px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                                :class="{ 'text-right': isRTL }">
-                        </div>
-                        <textarea rows="4" :placeholder="getTranslation('comments.write_comment')"
-                            class="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                            :class="{ 'text-right': isRTL }"></textarea>
-                        <button
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                            {{ getTranslation('comments.post_comment') }}
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Sample Comments -->
-                <div class="space-y-6">
-                    <!-- Comment 1 -->
-                    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6">
-                        <div class="flex items-start" :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
-                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face"
-                                alt="Commenter" class="w-10 h-10 rounded-full">
-                            <div class="flex-1" :class="{ 'text-right': isRTL }">
-                                <div class="flex items-center mb-2"
-                                    :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
-                                    <h5 class="font-semibold text-gray-900 dark:text-white">
-                                        {{ getTranslation('comments.sample_author_1') }}
-                                    </h5>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                                        {{ relatedBlog.author?.name || getTranslation('article.anonymous_author') }}
+                                    </span>
+                                    <span class="text-sm text-gray-400">•</span>
                                     <span class="text-sm text-gray-500 dark:text-gray-400">
-                                        {{ timeAgo('2024-01-15T14:00:00Z') }}
+                                        {{ formatDate(relatedBlog.published_at || relatedBlog.created_at) }}
                                     </span>
                                 </div>
-                                <p class="text-gray-600 dark:text-gray-300">
-                                    {{ getTranslation('comments.sample_comment_1') }}
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2"
+                                    :class="{ 'text-right': isRTL }">
+                                    {{ getLocalizedContent(relatedBlog, 'title') }}
+                                </h3>
+                                <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3"
+                                    :class="{ 'text-right': isRTL }">
+                                    {{ truncate(getLocalizedContent(relatedBlog, 'content'), 120) }}
                                 </p>
-                                <button
-                                    class="text-blue-600 dark:text-blue-400 text-sm font-medium mt-2 hover:text-blue-700 dark:hover:text-blue-300">
-                                    {{ getTranslation('comments.reply') }}
-                                </button>
+                                <Link :href="`/blog/${relatedBlog.slug}`"
+                                    class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium inline-flex items-center"
+                                    :class="isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'">
+                                <span>{{ getTranslation('related.read_more') }}</span>
+                                <i class="fas fa-arrow-right text-xs" :class="{ 'fas fa-arrow-left': isRTL }"></i>
+                                </Link>
                             </div>
-                        </div>
+                        </article>
                     </div>
-
-                    <!-- Comment 2 -->
-                    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6">
-                        <div class="flex items-start" :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
-                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
-                                alt="Commenter" class="w-10 h-10 rounded-full">
-                            <div class="flex-1" :class="{ 'text-right': isRTL }">
-                                <div class="flex items-center mb-2"
-                                    :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
-                                    <h5 class="font-semibold text-gray-900 dark:text-white">
-                                        {{ getTranslation('comments.sample_author_2') }}
-                                    </h5>
-                                    <span class="text-sm text-gray-500 dark:text-gray-400">
-                                        {{ timeAgo('2024-01-15T11:00:00Z') }}
-                                    </span>
-                                </div>
-                                <p class="text-gray-600 dark:text-gray-300">
-                                    {{ getTranslation('comments.sample_comment_2') }}
-                                </p>
-                                <button
-                                    class="text-blue-600 dark:text-blue-400 text-sm font-medium mt-2 hover:text-blue-700 dark:hover:text-blue-300">
-                                    {{ getTranslation('comments.reply') }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Related Articles -->
-        <section v-if="relatedBlogs?.length" class="py-16">
-            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-8" :class="{ 'text-right': isRTL }">
-                    {{ getTranslation('related.title') }}
-                </h3>
-
-                <div class="grid md:grid-cols-2 gap-8">
-                    <article v-for="related in relatedBlogs" :key="related.id" class="group">
-                        <Link :href="`/blog/${related.slug}`">
-                        <img src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=400&h=200&fit=crop"
-                            alt="Related article"
-                            class="w-full h-40 object-cover rounded-2xl mb-4 group-hover:opacity-90 transition-opacity">
-                        </Link>
-                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-                            :class="{ 'text-right': isRTL }">
-                            <Link :href="`/blog/${related.slug}`">
-                            {{ getLocalizedContent(related, 'title') }}
-                            </Link>
-                        </h4>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-3" :class="{ 'text-right': isRTL }">
-                            {{ truncate(getLocalizedContent(related, 'content'), 120) }}
-                        </p>
-                        <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400"
-                            :class="{ 'flex-row-reverse': isRTL }">
-                            <span>{{ formatDate(related.published_at || related.created_at) }}</span>
-                            <Link :href="`/blog/${related.slug}`"
-                                class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
-                            <span v-if="isRTL">← {{ getTranslation('related.read_more') }}</span>
-                            <span v-else>{{ getTranslation('related.read_more') }} →</span>
-                            </Link>
-                        </div>
-                    </article>
                 </div>
             </div>
         </section>
@@ -530,28 +437,7 @@ const timeAgo = (dateString: string) => {
                     <p class="text-gray-600 dark:text-gray-300 mb-6">
                         {{ getTranslation('footer.description') }}
                     </p>
-                    <div class="flex justify-center" :class="isRTL ? 'space-x-reverse space-x-6' : 'space-x-6'">
-                        <Link href="/"
-                            class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        {{ getTranslation('footer.links.home') }}
-                        </Link>
-                        <Link href="/courses"
-                            class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        {{ getTranslation('footer.links.courses') }}
-                        </Link>
-                        <Link href="/blog"
-                            class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        {{ getTranslation('footer.links.blog') }}
-                        </Link>
-                        <Link href="/about"
-                            class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        {{ getTranslation('footer.links.about') }}
-                        </Link>
-                        <Link href="/contact"
-                            class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        {{ getTranslation('footer.links.contact') }}
-                        </Link>
-                    </div>
+
                 </div>
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-8 mt-8 text-center">
                     <p class="text-gray-500 dark:text-gray-400 text-sm">
@@ -568,6 +454,20 @@ const timeAgo = (dateString: string) => {
 
 .font-tajawal {
     font-family: 'Tajawal', sans-serif;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 /* Custom styles for better typography */

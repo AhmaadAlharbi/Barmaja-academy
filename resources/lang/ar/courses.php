@@ -113,7 +113,7 @@ return [
         'popular_badge' => 'شائع',
         'preview_available' => 'معاينة متاحة',
         'view_course' => 'عرض الدورة',
-        'enroll_now' => 'اشترك الآن',
+        'enroll_now' => 'اشتر الآن',
         'add_to_cart' => 'أضف للسلة',
         'add_to_wishlist' => 'أضف للمفضلة',
         'students' => 'طالب',

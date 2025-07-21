@@ -504,23 +504,15 @@ const formatPrice = (price: number) => {
                                     ]">
                                         {{ getTranslation('lesson.lesson') }} {{ content.sort_order }}
                                     </span>
+
                                     <div :class="[
                                         'flex items-center text-sm',
                                         isEnrolled
                                             ? 'text-gray-500 dark:text-gray-400'
                                             : 'text-gray-400 dark:text-gray-500'
                                     ]" class="flex-row-reverse">
-                                        <i class="fas fa-clock" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
-                                        <span>15 {{ getTranslation('lesson.min') }}</span>
-                                    </div>
-                                    <div :class="[
-                                        'flex items-center text-sm',
-                                        isEnrolled
-                                            ? 'text-gray-500 dark:text-gray-400'
-                                            : 'text-gray-400 dark:text-gray-500'
-                                    ]" class="flex-row-reverse">
-                                        <i class="fas fa-eye" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
-                                        <span>1,234 {{ getTranslation('lesson.views') }}</span>
+
+
                                     </div>
                                     <div :class="[
                                         'flex items-center text-sm',
@@ -532,17 +524,7 @@ const formatPrice = (price: number) => {
                                         <span>{{ commentsCount }} {{ getTranslation('lesson.comments') }}</span>
                                     </div>
                                     <!-- Video type indicator -->
-                                    <div v-if="content.video_url" :class="[
-                                        'flex items-center text-sm px-2 py-1 rounded-full',
-                                        isEnrolled
-                                            ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-                                    ]" class="flex-row-reverse">
-                                        <i class="fas fa-play" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
-                                        <span>{{ isDirectVideoFile(content.video_url) ?
-                                            getTranslation('lesson.hd_video') : getTranslation('lesson.embedded')
-                                            }}</span>
-                                    </div>
+
                                 </div>
                                 <h1 :class="[
                                     'text-3xl font-bold mb-4',
@@ -670,7 +652,7 @@ const formatPrice = (price: number) => {
                                                 :class="isRTL ? 'ml-2' : 'mr-2'"></i>
                                             <i v-else class="fas fa-comment" :class="isRTL ? 'ml-2' : 'mr-2'"></i>
                                             {{ commentForm.processing ? getTranslation('comments.posting') :
-                                            getTranslation('comments.post_comment') }}
+                                                getTranslation('comments.post_comment') }}
                                         </button>
                                     </div>
                                 </form>

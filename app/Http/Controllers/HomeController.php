@@ -62,7 +62,7 @@ class HomeController extends Controller
 
     public function showBlogs()
     {
-        $blogs = BlogPost::paginate(6);
+        $blogs = BlogPost::with('author')->paginate(6);
 
         return Inertia::render('Blogs', array_merge([
             'blogs' => $blogs
@@ -71,7 +71,7 @@ class HomeController extends Controller
 
     public function showBlog($id)
     {
-        $blog = BlogPost::findOrFail($id);
+        $blog = BlogPost::with('author')->findOrFail($id);
 
         return Inertia::render('Blog', array_merge([
             'blog' => $blog

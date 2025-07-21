@@ -6,7 +6,7 @@ import Navbar from '@/components/Navbar.vue';
 const page = usePage();
 
 // Props that would come from your Laravel backend
-defineProps<{
+const props = defineProps<{
     auth?: {
         user?: any;
     };
@@ -23,6 +23,17 @@ defineProps<{
             published_at: string;
             created_at: string;
             updated_at: string;
+            // Author relationship data
+            author?: {
+                id: number;
+                name: string;
+                email: string;
+                avatar?: string;
+                bio_ar?: string;
+                bio_en?: string;
+                title_ar?: string;
+                title_en?: string;
+            };
         }>;
         current_page: number;
         last_page: number;
@@ -61,7 +72,9 @@ const fallbackTranslations = {
         likes: isRTL.value ? 'إعجاب' : 'likes',
         min_read: isRTL.value ? 'دقيقة قراءة' : 'min read',
         author_default: isRTL.value ? 'أحمد خليل' : 'Ahmed Khalil',
-        tech_trends: isRTL.value ? 'اتجاهات التكنولوجيا' : 'Tech Trends'
+        author_title_default: isRTL.value ? 'مطور أول' : 'Senior Developer',
+        tech_trends: isRTL.value ? 'اتجاهات التكنولوجيا' : 'Tech Trends',
+        anonymous_author: isRTL.value ? 'مؤلف مجهول' : 'Anonymous Author'
     },
     pagination: {
         previous: isRTL.value ? 'السابق' : 'Previous',
@@ -119,6 +132,33 @@ function getLocalizedContent(item: any, field: string) {
     return isRTL.value ? item[`${field}_ar`] : item[`${field}_en`];
 }
 
+// Helper functions for author information
+const getAuthorName = (blog: any) => {
+    if (blog.author?.name) {
+        return blog.author.name;
+    }
+    return getTranslation('article.anonymous_author');
+};
+
+const getAuthorTitle = (blog: any) => {
+    if (blog.author && (blog.author.title_ar || blog.author.title_en)) {
+        return getLocalizedContent(blog.author, 'title');
+    }
+    return getTranslation('article.author_title_default');
+};
+
+const getAuthorAvatar = (blog: any) => {
+    if (blog.author?.avatar) {
+        return blog.author.avatar;
+    }
+    // Default avatar from Unsplash
+    return "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face";
+};
+
+const getAuthorInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+};
+
 // Helper function to truncate content for excerpt
 const getExcerpt = (content: string, wordLimit: number = 30) => {
     const words = content.split(' ');
@@ -128,7 +168,7 @@ const getExcerpt = (content: string, wordLimit: number = 30) => {
 
 // Helper function to estimate reading time
 const getReadingTime = (content: string) => {
-    const wordsPerMinute = 200;
+    const wordsPerMinute = isRTL.value ? 180 : 200; // Arabic is typically slower to read
     const wordCount = content.split(' ').length;
     const minutes = Math.ceil(wordCount / wordsPerMinute);
     return `${minutes} ${getTranslation('article.min_read')}`;
@@ -193,15 +233,28 @@ const formatDate = (dateString: string) => {
                         <div class="mb-6">
                             <div class="flex items-center mb-4"
                                 :class="isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'">
-                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
-                                    alt="Author" class="w-10 h-10 rounded-full">
+
+                                <!-- Author Avatar -->
+                                <div class="relative flex-shrink-0">
+                                    <img v-if="blog.author?.avatar" :src="blog.author.avatar" :alt="getAuthorName(blog)"
+                                        class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700" />
+                                    <div v-else
+                                        class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                                        {{ getAuthorInitials(getAuthorName(blog)) }}
+                                    </div>
+                                </div>
+
+                                <!-- Author Info -->
                                 <div :class="{ 'text-right': isRTL }">
                                     <p class="text-sm font-medium text-gray-900 dark:text-white">
-                                        {{ getTranslation('article.author_default') }}
+                                        {{ getAuthorName(blog) }}
                                     </p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                                        {{ formatDate(blog.published_at || blog.created_at) }}
-                                    </p>
+                                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-400"
+                                        :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
+                                        <span>{{ formatDate(blog.published_at || blog.created_at) }}</span>
+                                        <span>•</span>
+                                        <span>{{ getAuthorTitle(blog) }}</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -215,9 +268,9 @@ const formatDate = (dateString: string) => {
 
                         <!-- Article Image -->
                         <div class="mb-6">
-                            <Link :href="`/blog/${blog.slug}`">
+                            <Link :href="route('frontend.show.blog', { id: blog.id })">
                             <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&h=400&fit=crop"
-                                alt="Article"
+                                :alt="getLocalizedContent(blog, 'title')"
                                 class="w-full h-64 lg:h-80 object-cover rounded-2xl group-hover:opacity-90 transition-opacity duration-300">
                             </Link>
                         </div>
@@ -232,21 +285,7 @@ const formatDate = (dateString: string) => {
 
                         <!-- Article Footer -->
                         <div class="flex items-center justify-between" :class="{ 'flex-row-reverse': isRTL }">
-                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400"
-                                :class="isRTL ? 'space-x-reverse space-x-6' : 'space-x-6'">
-                                <span class="flex items-center">
-                                    <i class="fas fa-clock" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
-                                    {{ getReadingTime(getLocalizedContent(blog, 'content')) }}
-                                </span>
-                                <span class="flex items-center">
-                                    <i class="fas fa-eye" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
-                                    1.2k {{ getTranslation('article.views') }}
-                                </span>
-                                <span class="flex items-center">
-                                    <i class="fas fa-heart" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
-                                    32 {{ getTranslation('article.likes') }}
-                                </span>
-                            </div>
+
 
                             <Link :href="route('frontend.show.blog', { id: blog.id })"
                                 class="inline-flex items-center text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
@@ -299,7 +338,7 @@ const formatDate = (dateString: string) => {
                         <Link v-if="blogs.next_page_url" :href="blogs.next_page_url"
                             class="px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                         <span v-if="isRTL">→ {{ getTranslation('pagination.next') }}</span>
-                        <span v-else">{{ getTranslation('pagination.next') }} →</span>
+                        <span v-else>{{ getTranslation('pagination.next') }} →</span>
                         </Link>
                     </div>
                 </div>

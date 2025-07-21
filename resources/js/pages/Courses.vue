@@ -406,12 +406,7 @@ watch([selectedCategory, selectedLevel, selectedPriceRange, selectedSort], () =>
                                         </div>
 
                                         <!-- Preview Button -->
-                                        <div v-if="course.preview_video_url"
-                                            class="absolute bottom-4 bg-black/30 backdrop-blur-sm text-white px-3 py-1 rounded-lg text-sm"
-                                            :class="isRTL ? 'right-4' : 'left-4'">
-                                            <i class="fas fa-play" :class="isRTL ? 'ml-1' : 'mr-1'"></i>
-                                            {{ getTranslation('course.preview_available') }}
-                                        </div>
+
 
 
                                     </div>
@@ -420,15 +415,11 @@ watch([selectedCategory, selectedLevel, selectedPriceRange, selectedSort], () =>
                                 <div class="p-6">
                                     <!-- Course Category and Rating -->
                                     <div class="flex items-center justify-between mb-3">
-                                        <span
-                                            class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full">
-                                            {{ course.slug }}
-                                        </span>
+
                                         <div class="flex items-center text-yellow-400"
                                             :class="isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'">
                                             <i class="fas fa-star text-sm"></i>
-                                            <span class="text-sm text-gray-600 dark:text-gray-400">4.8</span>
-                                            <span class="text-xs text-gray-500 dark:text-gray-500">(245)</span>
+                                            <span class="text-sm text-gray-600 dark:text-gray-400 mt-2 mx-2">4.8</span>
                                         </div>
                                     </div>
 
@@ -455,38 +446,15 @@ watch([selectedCategory, selectedLevel, selectedPriceRange, selectedSort], () =>
                                         {{ getLocalizedContent(course, 'description') }}
                                     </p>
 
-                                    <!-- Course Meta Info -->
-                                    <div
-                                        class="flex items-center justify-between mb-4 text-sm text-gray-500 dark:text-gray-400">
-                                        <div class="flex items-center"
-                                            :class="isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'">
-                                            <i class="fas fa-clock"></i>
-                                            <span>24{{ getTranslation('course.hours') }} 30m</span>
-                                        </div>
-                                        <div class="flex items-center"
-                                            :class="isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'">
-                                            <i class="fas fa-users"></i>
-                                            <span>1,234 {{ getTranslation('course.students') }}</span>
-                                        </div>
-                                        <div class="flex items-center"
-                                            :class="isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'">
-                                            <i class="fas fa-play-circle"></i>
-                                            <span>45 {{ getTranslation('course.lessons') }}</span>
-                                        </div>
-                                    </div>
+
 
                                     <!-- Instructor and Price -->
                                     <div class="flex items-center justify-between mb-4">
                                         <div class="flex items-center"
                                             :class="isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'">
                                             <!-- Instructor Avatar with Icon -->
-                                            <div
-                                                class="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-user text-white text-xs"></i>
-                                            </div>
-                                            <span class="text-sm text-gray-600 dark:text-gray-400">
-                                                {{ isRTL ? 'أحمد خليل' : 'Ahmed Khalil' }}
-                                            </span>
+
+
                                         </div>
                                         <div :class="{ 'text-left': isRTL }">
                                             <div class="text-2xl font-bold text-gray-900 dark:text-white">

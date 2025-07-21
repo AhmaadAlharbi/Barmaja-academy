@@ -421,7 +421,7 @@ const blogImages = [
                     <div v-for="(course, index) in threeCourses" :key="course.id"
                         class="group bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-gray-100 dark:border-gray-800">
 
-                        <div class="relative overflow-hidden">
+                        <div class="relative overflow-hidden b">
                             <!-- Dynamic programming-related images based on course index -->
                             <img :src="courseImages[index % courseImages.length]"
                                 :alt="getLocalizedContent(course, 'title')"
@@ -433,22 +433,15 @@ const blogImages = [
                                 :class="isRTL ? 'left-4' : 'right-4'">
                                 {{ getTranslation('featured_courses.bestseller') }}
                             </div>
-                            <div class="absolute bottom-4 bg-black/70 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium"
-                                :class="isRTL ? 'right-4' : 'left-4'">
-                                <i class="fas fa-play" :class="isRTL ? 'ml-2' : 'mr-2'"></i>
-                                {{ getTranslation('featured_courses.preview_available') }}
-                            </div>
+
                         </div>
 
                         <div class="p-8">
                             <div class="flex items-center justify-between mb-4">
-                                <span
-                                    class="text-sm text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">
-                                    {{ course.slug }}
-                                </span>
+
                                 <div class="flex items-center text-yellow-400">
                                     <i class="fas fa-star"></i>
-                                    <span class="text-sm text-gray-600 dark:text-gray-400 font-medium"
+                                    <span class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1"
                                         :class="isRTL ? 'mr-2' : 'ml-2'">4.9</span>
                                 </div>
                             </div>
