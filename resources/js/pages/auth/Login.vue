@@ -260,17 +260,7 @@ const toggleLanguage = () => {
                                     </div>
                                 </div>
 
-                                <!-- Social Login Buttons (Optional) -->
-                                <div class="grid grid-cols-2 gap-4">
-                                    <button type="button"
-                                        class="flex items-center justify-center h-12 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-2xl transition-all duration-300 transform hover:scale-105 border border-gray-200 dark:border-gray-600">
-                                        <i class="fab fa-google text-red-500 text-xl"></i>
-                                    </button>
-                                    <button type="button"
-                                        class="flex items-center justify-center h-12 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-2xl transition-all duration-300 transform hover:scale-105 border border-gray-200 dark:border-gray-600">
-                                        <i class="fab fa-facebook text-blue-600 text-xl"></i>
-                                    </button>
-                                </div>
+
                             </form>
 
                             <!-- Sign Up Link -->

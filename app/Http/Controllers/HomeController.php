@@ -49,11 +49,21 @@ class HomeController extends Controller
     {
         $course = Course::with(['contents', 'comments'])->findOrFail($id);
 
-        $isEnrolled = false;
-        if (Auth::check()) {
-            $isEnrolled = Auth::user()->courses()->where('course_id', $id)->exists();
-        }
+        $user = Auth::user();            // current user or null
+        $isEnrolled = false;             // default for guests
 
+        if ($user) {
+            if ($user->role === 'admin') {
+                // admins always “enrolled”
+                $isEnrolled = true;
+            } else {
+                // everyone else only if they’ve actually bought it
+                $isEnrolled = $user
+                    ->courses()
+                    ->where('course_id', $id)
+                    ->exists();
+            }
+        }
         return Inertia::render('Course', array_merge([
             'course' => $course,
             'isEnrolled' => $isEnrolled
@@ -147,10 +157,22 @@ class HomeController extends Controller
         }
 
         // Check enrollment
-        $isEnrolled = false;
-        if (Auth::check()) {
-            $isEnrolled = Auth::user()->courses()->where('course_id', $course->id)->exists();
+        $user = Auth::user();            // current user or null
+        $isEnrolled = false;             // default for guests
+
+        if ($user) {
+            if ($user->role === 'admin') {
+                // admins always “enrolled”
+                $isEnrolled = true;
+            } else {
+                // everyone else only if they’ve actually bought it
+                $isEnrolled = $user
+                    ->courses()
+                    ->where('course_id', $id)
+                    ->exists();
+            }
         }
+
 
         // Get all lessons
         $allLessons = CourseContent::where('course_id', $course->id)

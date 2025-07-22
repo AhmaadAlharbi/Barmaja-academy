@@ -222,10 +222,7 @@ function toggleLanguageDropdown() {
                                         class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                                     {{ currentLocale === 'ar' ? 'لوحة التحكم' : 'Dashboard' }}
                                     </Link>
-                                    <Link href="/profile"
-                                        class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    {{ currentLocale === 'ar' ? 'الملف الشخصي' : 'Profile' }}
-                                    </Link>
+
                                 </div>
 
                                 <hr class="my-2 border-gray-200 dark:border-gray-700">

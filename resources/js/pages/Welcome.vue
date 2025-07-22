@@ -47,20 +47,7 @@ const translations = computed(() => page.props.translations?.home || {});
 
 // Comprehensive fallback translations
 const fallbackTranslations = {
-    hero: {
-        title: isRTL.value ? 'إتقان' : 'Master',
-        subtitle: isRTL.value ? 'البرمجة' : 'Programming',
-        description: isRTL.value
-            ? 'انضم إلى أكاديمية برمجة وتعلم البرمجة من خبراء الصناعة. ابدأ رحلتك في عالم التكنولوجيا اليوم.'
-            : 'Join Barmaja Academy and learn programming from industry experts. Start your journey in the world of technology today.',
-        explore_courses: isRTL.value ? 'استكشف الدورات' : 'Explore Courses',
-        watch_demo: isRTL.value ? 'شاهد العرض التوضيحي' : 'Watch Demo',
-        stats: {
-            students: isRTL.value ? 'طالب' : 'Students',
-            courses: isRTL.value ? 'دورة' : 'Courses',
-            instructors: isRTL.value ? 'مدرس' : 'Instructors'
-        }
-    },
+
     featured_courses: {
         title: isRTL.value ? 'الدورات المميزة' : 'Featured Courses',
         subtitle: isRTL.value ? 'اكتشف أشهر دوراتنا المقدمة من خبراء الصناعة' : 'Discover our most popular courses taught by industry experts',
@@ -462,7 +449,7 @@ const blogImages = [
                                     <div class="flex items-center">
                                         <i class="fas fa-clock" :class="isRTL ? 'ml-2' : 'mr-2'"></i>
                                         <span class="text-sm font-medium">24 {{ getTranslation('featured_courses.hours')
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <div class="flex items-center">
                                         <i class="fas fa-users" :class="isRTL ? 'ml-2' : 'mr-2'"></i>

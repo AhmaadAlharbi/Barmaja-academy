@@ -13,12 +13,25 @@ defineProps<Props>();
 </script>
 
 <template>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 42" :class="className" v-bind="$attrs">
-        <path
-            fill="currentColor"
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M17.2 5.633 8.6.855 0 5.633v26.51l16.2 9 16.2-9v-8.442l7.6-4.223V9.856l-8.6-4.777-8.6 4.777V18.3l-5.6 3.111V5.633ZM38 18.301l-5.6 3.11v-6.157l5.6-3.11V18.3Zm-1.06-7.856-5.54 3.078-5.54-3.079 5.54-3.078 5.54 3.079ZM24.8 18.3v-6.157l5.6 3.111v6.158L24.8 18.3Zm-1 1.732 5.54 3.078-13.14 7.302-5.54-3.078 13.14-7.3v-.002Zm-16.2 7.89 7.6 4.222V38.3L2 30.966V7.92l5.6 3.111v16.892ZM8.6 9.3 3.06 6.222 8.6 3.143l5.54 3.08L8.6 9.3Zm21.8 15.51-13.2 7.334V38.3l13.2-7.334v-6.156ZM9.6 11.034l5.6-3.11v14.6l-5.6 3.11v-14.6Z"
-        />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" :class="className" v-bind="$attrs">
+        <!-- Graduation Cap -->
+        <path fill="currentColor" d="M24 6L6 14v2l18 8 18-8v-2L24 6z" />
+        <path fill="currentColor" opacity="0.7" d="M38 17v10c0 4-6.27 7-14 7s-14-3-14-7V17l14 6 14-6z" />
+
+        <!-- Book Stack -->
+        <rect x="10" y="30" width="28" height="3" rx="1" fill="currentColor" />
+        <rect x="12" y="33" width="24" height="3" rx="1" fill="currentColor" opacity="0.8" />
+        <rect x="14" y="36" width="20" height="3" rx="1" fill="currentColor" opacity="0.6" />
+
+        <!-- Decorative Academic Elements -->
+        <circle cx="42" cy="20" r="3" fill="currentColor" opacity="0.4" />
+        <path d="M41 19h2M42 18v2" stroke="currentColor" stroke-width="0.8" opacity="0.6" />
+
+        <!-- Scholar's Tassel -->
+        <path d="M30 16l4 2-1 8-3-2 0-8z" fill="currentColor" opacity="0.5" />
+
+        <!-- Academic Stars -->
+        <path d="M8 12l1 2 2-1-1 2 1 1-2-1-2 1 1-1-1-2 2 1z" fill="currentColor" opacity="0.3" />
+        <path d="M40 32l0.5 1 1-0.5-0.5 1 0.5 0.5-1-0.5-1 0.5 0.5-0.5-0.5-1 1 0.5z" fill="currentColor" opacity="0.3" />
     </svg>
 </template>

@@ -252,20 +252,7 @@ const submit = () => {
                                     <InputError :message="form.errors.password_confirmation" />
                                 </div>
 
-                                <!-- Terms Agreement -->
-                                <div class="text-center text-sm text-gray-600 dark:text-gray-400 leading-relaxed"
-                                    :class="{ 'text-right': isRTL }">
-                                    {{ getTranslation('register.terms_agreement') }}
-                                    <a href="#"
-                                        class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors">
-                                        {{ getTranslation('register.terms_of_service') }}
-                                    </a>
-                                    {{ getTranslation('register.and') }}
-                                    <a href="#"
-                                        class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors">
-                                        {{ getTranslation('register.privacy_policy') }}
-                                    </a>
-                                </div>
+
 
                                 <!-- Submit Button -->
                                 <Button type="submit"
@@ -290,17 +277,7 @@ const submit = () => {
                                     </div>
                                 </div>
 
-                                <!-- Social Registration Buttons -->
-                                <div class="grid grid-cols-2 gap-4">
-                                    <button type="button"
-                                        class="flex items-center justify-center h-12 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-2xl transition-all duration-300 transform hover:scale-105 border border-gray-200 dark:border-gray-600">
-                                        <i class="fab fa-google text-red-500 text-xl"></i>
-                                    </button>
-                                    <button type="button"
-                                        class="flex items-center justify-center h-12 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-2xl transition-all duration-300 transform hover:scale-105 border border-gray-200 dark:border-gray-600">
-                                        <i class="fab fa-facebook text-blue-600 text-xl"></i>
-                                    </button>
-                                </div>
+
                             </form>
 
                             <!-- Sign In Link -->

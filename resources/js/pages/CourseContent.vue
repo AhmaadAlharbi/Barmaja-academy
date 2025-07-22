@@ -843,7 +843,7 @@ const formatPrice = (price: number) => {
                             {{ getTranslation('sidebar.back_to_course') }}
                             </Link>
                             <button v-if="isEnrolled"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center"
+                                class="w-full bg-blue-600 hidden hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center"
                                 :class="{ 'flex-row-reverse': isRTL }">
                                 <i class="fas fa-download" :class="isRTL ? 'ml-2' : 'mr-2'"></i>
                                 {{ getTranslation('sidebar.download_resources') }}

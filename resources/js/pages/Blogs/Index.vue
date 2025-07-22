@@ -167,24 +167,6 @@ const handlePageChange = (page: number) => {
                 </Link>
             </div>
 
-            <!-- Search and Filters -->
-            <div
-                class="bg-white dark:bg-gray-800 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-4">
-                <div class="flex items-center gap-4">
-                    <div class="relative flex-1 max-w-md">
-                        <input v-model="searchQuery" type="text" placeholder="Search blog posts..."
-                            class="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
-                        <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    </div>
-                    <select
-                        class="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">All Status</option>
-                        <option value="published">Published</option>
-                        <option value="draft">Draft</option>
-                    </select>
-                </div>
-            </div>
-
             <!-- Blog Posts Grid/Table -->
             <div
                 class="bg-white dark:bg-gray-800 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border overflow-hidden">
@@ -344,7 +326,7 @@ const handlePageChange = (page: number) => {
                                             <div class="text-xs text-gray-500">
                                                 {{ blogPost.published_at ? 'Published ' +
                                                     formatDate(blogPost.published_at) : 'Created ' +
-                                                formatDate(blogPost.created_at) }}
+                                                    formatDate(blogPost.created_at) }}
                                             </div>
                                         </div>
                                     </div>
